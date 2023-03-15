@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href= "/public/assets/styles.css" rel="stylesheet" type="text/css" />
+    <link rel="icon" href="/public/favicon.ico"> <!--https://icons8.com/icon/qhTRpW6HOKIT/lobster"-->
+    <title>Michael Krah</title>
+</head>
+<body>
+    
+    <h2 class="header-title"> <img src="/public/images/name.jpg"  class="image">  </img> </h2>
+
+    <nav class="nav">
+        <a href="/" > Home </a>
+        <a href="/about" > About </a>
+        <a href="/resume"> Resume </a>
+        <a href="/contact"> Contact </a>
+    </nav>
+
+    <h1 class="main-page"> Hello! </h1>
+    <p class="paragraph">My name is Michael Krah. Welcome to my site. I wanted to create a place where people could learn a little about me. </p> 
+    <% for (var i =1; i <=100;  i++ ) { %>
+        <br/>  <%= i  %>
+        <%#  will output the numbers 1-10 %>
+        <% } %>
+</body>
+</html>
