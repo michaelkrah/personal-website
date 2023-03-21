@@ -18,12 +18,25 @@
         <a href="/resume"> Resume </a>
         <a href="/contact"> Contact </a>
     </nav>
-
+    
     <h1 class="main-page"> Hello! </h1>
-    <p class="paragraph">My name is Michael Krah. Welcome to my site. I wanted to create a place where people could learn a little about me. </p> 
-    <% for (var i =1; i <=100;  i++ ) { %>
-        <br/>  <%= i  %>
-        <%#  will output the numbers 1-10 %>
-        <% } %>
-</body>
-</html>
+    <div class="main-flex">
+        <div id="mar1"></div>
+        
+        <div>
+            <p class="paragraph">I'm Michael. Welcome to my personal site. I wanted to create a place where people could learn a little about me. Feel free to explore around on this site! </p> 
+            <p class="paragraph">I'm an undergrad CS student at Boston University. I'm from Maine and in my free time I enjoy rock climbing, exploring Boston, knitting, and designing 3D models.    
+        </div>
+        <figure >
+            <p><img id="main-image" src="/public/images/lobster.jpg"
+              width="45%" 
+              alt="3D Printed Lobster">
+            <figcaption id="fig-text">Enjoy this 3D printed lobster I made while I am setting stuff up on this site</figcaption>
+        </figure>
+        
+
+
+
+    </div>
+    </body>
+</html> 

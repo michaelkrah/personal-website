@@ -76,6 +76,7 @@
 
 
 
+
 a {
   color:#000000
 }
@@ -91,11 +92,23 @@ body {
 
 }
 
+.paragraph-about {
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  text-align: center;
+  font-size: 20px;
+  margin-left: 10%;
+  margin-right: 10%;
+  line-height: 30px;
+
+}
+
+
 .title {
   justify-content: center ;
   font-weight: 4000;
   font-family: Lato,Helvetica,sans-serif;
   font-size: calc(.1vw + 20px);
+  margin-left: 20px;
 
 }
 
@@ -103,6 +116,29 @@ body {
   font-weight: 4000;
   font-size: 40px;
   font-family: Lato, serif;
+  text-align: center;
+}
+
+.main-flex{
+  display: flex;
+  justify-content: space-around;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+}
+
+#mar1 {
+  width:200px
+}
+
+#main-image{
+  min-width: 300px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+
+}
+
+#fig-text {
   text-align: center;
 }
 
@@ -126,4 +162,49 @@ a:active { text-decoration: none; }
     display: block;
     max-height: 1100px;
     aspect-ratio: 8.5 / 11;
+  }
+
+
+  @media(max-width:768px) {
+    .header-title::before {
+      content: "";
+        position: absolute;
+        height: 10%;
+        border-bottom: 1px solid #939498;
+        border-top: 1px solid #939498;
+        top: 40%;
+        width: 10%;
+        right: 80%;
+    }
+    
+    .header-title::after {
+        content: "";
+        position: absolute;
+        height: 10%;
+        border-bottom: 1px solid #939498;
+        border-top: 1px solid #939498;
+        top: 40%;
+        width: 10%;
+        left: 80%;
+        display: inline-block;
+    }
+  
+    .nav {
+      display: flex;
+      gap: 2%;
+      justify-content: center ;
+      font-weight: 400;
+      font-family: Lato,Helvetica,sans-serif;
+      font-size: calc(.1vw + 10px);
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      margin-bottom: 70px;
+    }
+  
+    .main-flex{
+      display: flex;
+      gap: 2%;
+      justify-content: center ;
+      flex-direction: column;
+    }
   }
