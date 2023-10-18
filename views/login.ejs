@@ -1,0 +1,17 @@
+<!-- authorize.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorize App</title>
+</head>
+<body>
+    <h2>You shouldn't be here >:(</h2>
+    <form action="/songs/authorize" method="get">
+        <label for="client_id">:</label>
+        <input type="text" id="client_id" name="client_id" required>
+        <button type="submit">Authorize</button>
+    </form>
+</body>
+</html>

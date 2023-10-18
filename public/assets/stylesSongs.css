@@ -1,0 +1,460 @@
+body, html {
+    margin: 0;
+    height: 100%;
+    box-sizing: border-box;
+}
+.top-header {
+    height: 2%;
+    font-size: .8em;
+    text-decoration: none; 
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+#home-button {
+    
+    margin-top: 0.2%;
+    margin-right: 2%;
+    color: white;
+    font-family:sans-serif;
+    font-size: 1em;
+    text-decoration: none; 
+}
+#home-button:hover {
+    text-decoration: underline;
+}
+
+.flex-container {
+    display: flex;
+    height: 98vh; 
+}
+
+
+.left-container {
+    margin-left: 0.5%;
+    display: flex;
+    flex-direction: column;
+    width: 15%;
+    height: 100%;
+    justify-content: center; /* Centers children horizontally */
+    align-items: center; /* Centers children vertically */
+}
+
+
+.ui-container {
+    border-radius: 15px;
+    display: flex; /* Flex container */
+    
+
+    background-color: #1a1a1a;
+    width: 98%;
+    height: 98%;
+    display: flex; 
+    margin: 0 auto;
+    border: 20px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Two divs inside the left container */
+.left-div-1 {
+    flex: 4; /* This makes them share the available space equally */
+    background-color:  #1a1a1a; /* Just for visualization */
+    display: flex;             /* Set this to flex */
+    justify-content: center;   /* Center children horizontally */
+    align-items: left;
+    flex-direction: column;
+}
+.left-div-2 {
+    flex: 3; /* This makes them share the available space equally */
+    background-color:  #1a1a1a; /* Just for visualization */
+    display: flex;
+    flex-direction: column;
+}
+.column-div {
+    display: flex;
+    flex-direction: row;
+}
+.left-div-3 {
+    flex: 3; /* This makes them share the available space equally */
+    background-color:  #1a1a1a; /* Just for visualization */
+}
+
+/* Div on the right */
+.right-div {
+    width: 85%;
+    height: 100%;
+    background-color: black; /* Just for visualization */
+    display: flex;             /* Set this to flex */
+    justify-content: center;   /* Center children horizontally */
+    align-items: center;       
+}
+
+.left-div-2, .left-div-3, .left-div-1 {
+    order: 0; 
+}
+
+
+/* Mobile styles */
+@media only screen and (max-width: 768px) {
+    .left-div-1, 
+    .left-div-2, 
+    .left-div-3, 
+    .right-div, 
+    .top-header,
+    .ui-container,
+    .left-container {
+        width: 100%;
+    }
+    .left-div-1 {
+        order: -1; /* This makes it appear before any item with an order of 0 or greater. */
+    }
+
+    .flex-container {
+        width: 100%;
+        height:auto;
+        flex-direction: column;
+    }
+
+    .division {
+        width: 100%;
+        height: 25%;
+    }
+        .orange {
+        width: 100%;
+        height: 50%;
+        background-color: orange;
+    }
+
+    .red {
+        width: 100%;
+        height: 50%;
+        background-color: red;
+    }
+
+    .black {
+        width: 100%;
+        height: 50%;
+        min-height: 500px;
+        background-color: black;
+    }
+
+    .yellow {
+        width: 100%;
+        height: 50%;
+        background-color: yellow;
+    }
+}
+#currentlyPlaying {
+    margin-left: 3%;
+    color: white;
+    font-family:sans-serif;
+    font-size: 1.2em;
+    
+}
+#selectRange {
+    margin-left: 3%;
+    margin-top: 3%;
+    color: white;
+    font-family:sans-serif;
+    font-size: 1.2em;
+}
+#selectAttribute {
+    margin-left: 3%;
+    margin-top: 6%;
+    color: white;
+    font-family:sans-serif;
+    font-size: 1.2em;
+}
+#selectionText {
+    margin-left: 3%;
+    margin-right: 2%;
+    margin-top: 3%;
+    color: white;
+    font-family:sans-serif;
+    font-size: .8em;
+}
+#startDate {
+    margin-top: 2%;
+}
+#endDate {
+    margin-top: 2%;
+    margin-bottom: 3%;
+}
+
+#songImage {
+    width: 92%;
+    margin-top: 2%;
+    margin-left: 3%;
+    height: auto;
+    max-height: 92%;
+    border-radius: 10px;
+}
+#songImage:not([src]), img[src=""] {
+    display: none; /* hides images with empty src or without any src attribute */
+}
+#songDisplay {
+    margin-top: 3%;
+    margin-left: 3%;
+    color: white;
+    font-family:sans-serif;
+    font-size: 0.8em;
+    text-decoration: none; 
+}
+#songContainer {
+    margin-top: 4%;
+}
+#artistContainer {
+    margin-bottom: 4%;
+}
+#songDisplay:hover {
+    text-decoration: underline;
+
+}
+#songArtist {
+    margin-top: 2%;
+    margin-left: 3%;
+    color:#909090;
+    font-family:sans-serif;
+    font-size: 0.7em;
+    text-decoration: none; 
+}
+#songArtist:hover {
+    text-decoration: underline;
+
+}
+
+#fetchData {
+    background-color: #292929; /* Green */
+    border: none;
+    color: #ffffff;
+    width: 70%;
+    height: auto;
+    margin-left: 10%;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+}
+#fetchData:hover {
+    cursor:pointer;
+
+}
+
+#startDate, #endDate {
+    background-color: #292929;
+    border: none;
+    color: #ffffff;
+    font-size: .8em;
+    font-family: sans-serif;
+    padding: 5px;
+    border-radius: 5px;
+    appearance: none; /* Removes the default appearance */
+    -webkit-appearance: none; /* Safari and Chrome */
+    -moz-appearance: none; /* Firefox */
+
+    /* Optional: Add a custom arrow for the date picker */
+    background-repeat: no-repeat;
+    background-position: 95% center;
+}
+
+#startDate:hover, #endDate:hover {
+    cursor: pointer;
+    background-color: #1a1a1a; /* Adjust to a slightly different shade on hover */
+}
+
+.selectionContainer {
+    border-radius: 15px;
+    background-color: #1a1a1a;
+    height: 90%;
+}
+
+.calendar-container {
+    border-radius: 15px;
+    display: flex; /* Flex container */
+    justify-content: center; /* Centers children horizontally */
+    align-items: center; /* Centers children vertically */
+    min-height: 500px;
+    background-color: #1a1a1a;
+    /* max-width: 800px;  */
+    width: 98%;
+    height: 98%;
+    display: flex; 
+    margin: 0 auto;
+    border: 20px;
+    overflow: auto;
+}
+
+.grid {
+    display: grid;
+    flex: none; 
+    width: 90%;
+    max-height: 500px;
+    gap: 0px;
+    height: 90%;
+}
+
+.time-column {
+    max-height: 500px;
+    min-height: 500px;
+    display: grid;
+    flex: none;
+    grid-auto-rows: auto;
+    background-color: #ffffff00;
+    padding-right: 10px;
+    border-right: 1px solid #ffffff00;
+    text-align: right;
+    width: 60px;
+    margin-top: 30px;
+    height: 500px
+}
+
+.time-slot {
+    color: white;
+    font-weight: 10;
+    font-family:sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(500px / 24);
+    font-size: 0.8em;
+}
+
+.day {
+    color: white;
+    font-weight: 10;
+
+    font-family:sans-serif;
+
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    width: 100%;
+}
+
+.day-title {
+    color: white;
+    display: flex;
+    justify-content: center;
+}
+
+.segment {
+    min-height: 1px;
+    width: 80%;
+    height: 100%;   
+    background-color: #292929; 
+}
+
+.segment:first-child {
+    border-top: none;
+}
+
+.active {
+    background-color: #0ed560;
+}
+
+
+.other {
+    background-color: #424242;
+}
+
+.radio-group {
+    display: flex;
+    justify-content: center; /* Horizontally center the content */
+    align-items: center; /* Vertically center the content */
+    flex-wrap: wrap;
+}
+
+.radio-group div {
+    margin-right: 5%;
+    margin-top: 5%;
+}
+
+.radio-group input[type="radio"] {
+    display: none; /* Hide the radio buttons */
+}
+
+.radio-group label {
+    padding: 5px 8px;
+    background-color: #292929;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    transition: background-color 0.3s;
+    font-family: sans-serif;
+}
+
+.radio-group label:hover {
+    background-color: #ddd;
+}
+
+.radio-group input[type="radio"]:checked + label {
+    background-color: #555;
+    color: #fff;
+}
+
+.top-attributes-flex-container {
+    display: flex;
+    flex-direction: column;
+}
+.top-attributes-row {
+    display: flex;
+    margin-bottom: 3%;
+}
+
+/* Left Column */
+.top-attributes-left {
+    flex: 1;
+    color: white;
+    font-family: sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Middle Column */
+.top-attributes-middle {
+    flex: 5;
+    color: white;
+    font-family: sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Right Column */
+.top-attributes-right {
+    flex: 1;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Adjust as per your need */
+.top-attributes-color-box {
+    width: 100%;
+    height: 100%;
+}
+
+.color-class-1 {
+    background-color: #FFD700; /* Gold for top songs */
+}
+
+.color-class-2 {
+    background-color: #E1AC38; /* Gold for top songs */
+}
+
+.color-class-3 {
+    background-color: #C48171; /* Gold for top songs */
+}
+
+.color-class-4 {
+    background-color: #A656A9; /* Gold for top songs */
+}
+
+.color-class-5 {
+    background-color: #8A2BE2 ; /* Gold for top songs */
+}

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB Data</title>
+</head>
+<body>
+    <h1>Data from MongoDB</h1>
+    <ul>
+        <% data.forEach(item => { %>
+            <li>Name: <%= item.trackTitle %>, Age: <%= item.trackArtist %>, <%= item.startDate%></li>
+        <% }); %>
+    </ul>
+    <a href="/">Back to Form</a>
+</body>
+</html>
