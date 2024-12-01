@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href= "/public/assets/styles.css" rel="stylesheet" type="text/css" />
+    <link rel="icon" href="/public/favicon.ico"> <!--https://icons8.com/icon/qhTRpW6HOKIT/lobster"-->
+
+    <title>Admin</title>
+</head>
+<body>
+    <h1 class="header-title">Admin Page</h1>
+
+    <h4 class="paragraph-about-center">Site Controls</h4>
+    <%= spotifyRequestPlayer %>
+    <form action="/admin/toggleSpotifyRequestPlayer" method="POST">
+        <label for="spotify-state">Request Playback State:</label>
+        <input type="radio" id="spotifyRequestPlayerEnabled" 
+        name="spotifyState" value="true"
+        <%= spotifyRequestPlayer ? "checked" : "" %> > Enabled
+
+        <input type="radio" id="spotifyRequestPlayerDisabled" 
+        name="spotifyState" value="false" 
+        <%= !spotifyRequestPlayer ? "checked" : "" %> > Disabled
+        <button type="submit">Save</button>
+    </form>
+
+</body>
+</html>
+
