@@ -46,7 +46,9 @@
     display: inline-block;
 }
 
-
+.center-div {
+  text-align: center;
+}
 
 .header {
     display: flex;

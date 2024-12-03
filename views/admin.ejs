@@ -11,9 +11,17 @@
 <body>
     <h1 class="header-title">Admin Page</h1>
 
+    <nav class="nav">
+        <a href="/"  id="nav-item"> Home </a>
+        <a href="/about" id="nav-item"> About </a>
+        <a href="/resume" id="nav-item"> Resume </a>
+        <a href="/contact" id="nav-item" > Contact </a>
+        <a href="/songs" id="songs-header"> Songs </a>
+    </nav>
+
+    <div class="center-div">
     <h4 class="paragraph-about-center">Site Controls</h4>
-    <%= spotifyRequestPlayer %>
-    <form action="/admin/toggleSpotifyRequestPlayer" method="POST">
+     <form action="/admin/toggleSpotifyRequestPlayer" method="POST">
         <label for="spotify-state">Request Playback State:</label>
         <input type="radio" id="spotifyRequestPlayerEnabled" 
         name="spotifyState" value="true"
@@ -24,6 +32,41 @@
         <%= !spotifyRequestPlayer ? "checked" : "" %> > Disabled
         <button type="submit">Save</button>
     </form>
+
+    <form action="/admin/toggleLogging" method="POST">
+        <label for="log-state">Log detailed messages:</label>
+        <input type="radio" id="logMessagesEnabled" 
+        name="logState" value="true"
+        <%= logState ? "checked" : "" %> > Enabled
+
+        <input type="radio" id="logMessagesEnabled" 
+        name="logState" value="false" 
+        <%= !logState ? "checked" : "" %> > Disabled
+        <button type="submit">Save</button>
+    </form>
+    </div>
+
+    <div class="center-div">
+        <h4 class="paragraph-about-center">Spotify Login</h4>
+        <form action="/admin/authorize" method="get">
+            Client id:
+            <input type="text" id="client_id" name="client_id" required>
+            <button type="submit">Authorize</button>
+        </form>
+    </div>
+
+    <div>
+        <h4 class="paragraph-about-center">Database overview</h4>
+    <ul>
+        <!-- CHANGE this to actually display songs as required -->
+        <% songs.forEach(song => { %>
+            <li><%= song.hello %></li>
+        <% }) %>
+    </ul>
+    </div>
+
+
+
 
 </body>
 </html>

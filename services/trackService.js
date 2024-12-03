@@ -1,5 +1,9 @@
 const { client } = require('../config/dbConfig');
 
+
+// will send latest listen here, it's up to this service to determine how to splice listens into tracks and store them, listens will always be immediately stored, tracks will be stored
+// when complete, which might take hours ?
+
 async function getTracksFromInterval(startDate, endDate) {
   const db = client.db();
   const collection = db.collection('mySongs');

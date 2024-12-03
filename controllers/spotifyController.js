@@ -3,6 +3,8 @@ const { getTracksFromInterval, topInterval } = require('../services/trackService
 const { client } = require('../config/dbConfig');
 const Track = require('../models/track');
 
+
+
 const getCurrentSong = (req, res) => {
   if (currentSong) {
     res.json(currentSong);

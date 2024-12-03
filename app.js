@@ -40,7 +40,7 @@ connectToMongoDB().catch((err) => console.error('Database connection error:', er
 
 const db = client.db()
 const collection = db.collection('mySongs');
-const result = collection.insertOne({ hello: "hello" });
+const result = collection.insertOne({ hello: "goodbye" });
 
 
 module.exports = app;

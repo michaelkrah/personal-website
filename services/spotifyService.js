@@ -1,4 +1,4 @@
-// File for maintaining and access to the spotify api via an access token
+// File for accessing and maintaining access to the spotify api via an access token and authorization
 
 const axios = require('axios');
 const {
@@ -6,7 +6,14 @@ const {
   setAccessToken,
   getRefreshToken,
   setRefreshToken,
+  getRedirectURI,
+  getClientID,
+  getClientSecret,
+  setRequestPlayer,
+  getRequestPlayer,
 } = require('../config/spotifyConfig');
+
+const { schedulePlaybackState } = require('../jobs/spotifyPlayback');
 
 async function refreshAccessToken() {
   const refresh_token = getRefreshToken();
@@ -51,3 +58,46 @@ function handleAuthorizationResponse(response) {
     throw new Error(response.statusText);
   }
 }
+
+// for initial authorization
+async function handleRedirect(req, res) {
+  const code = req.query.code;
+  if (code) {
+    try {
+      const authOptions = {
+        method: 'post',
+        url: 'https://accounts.spotify.com/api/token',
+        params: {
+          grant_type: 'authorization_code',
+          code: code,
+          redirect_uri: getRedirectURI(),
+          client_id: getClientID(),
+          client_secret: getClientSecret()
+        },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      };
+
+      const response = await axios(authOptions);
+      const responseData = response.data;
+      setAccessToken(responseData.access_token);
+      setRefreshToken(responseData.refresh_token);
+
+      // Automatically activates schedulePlaybackState after login is complete  
+      setRequestPlayer(true);
+      if (getRequestPlayer()) {
+        schedulePlaybackState();
+      }
+
+      res.redirect('/songs'); 
+    } catch (error) {
+      throw error;
+    }
+  } else {
+    throw new Error("No code provided");
+  }
+};
+
+
+module.exports = {refreshAccessToken, handleRedirect};
