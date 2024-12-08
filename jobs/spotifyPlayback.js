@@ -5,22 +5,26 @@ let playbackJob = null;
 
 async function schedulePlaybackState() {
     if (!playbackJob) {
-        playbackJob = setInterval( async () => {
+        playbackJob = true;
+        const executeJob = async () => {
             try {
                 if (!getRequestPlayer()) {
-                    clearInterval(playbackJob);
-                    playbackJob = null;
-                    return
+                    playbackJob = null; 
+                    return;
                 }
-                await requestPlaybackState();
-                
+
+                await requestPlaybackState(); 
             } catch (error) {
                 console.error('Error during Spotify playback check:', error);
             }
-        }, 5000);
-        
+
+            if (playbackJob) {
+                setTimeout(executeJob, 30000); 
+            }
+        };
+
+        executeJob();
     }
-   
 }
 
 function stopPlaybackState() {

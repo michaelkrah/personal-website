@@ -1,5 +1,4 @@
 // File for accessing and maintaining access to the spotify api via an access token and authorization
-
 const axios = require('axios');
 const {
   getAccessToken,
@@ -13,10 +12,9 @@ const {
   getRequestPlayer,
 } = require('../config/spotifyConfig');
 
-const { schedulePlaybackState } = require('../jobs/spotifyPlayback');
-
 async function refreshAccessToken() {
   const refresh_token = getRefreshToken();
+  const client_id = getClientID();
   let body = `grant_type=refresh_token&refresh_token=${refresh_token}&client_id=${client_id}`;
 
   try {
@@ -30,8 +28,12 @@ async function refreshAccessToken() {
 }
 
 async function callAuthorizationApi(body) {
+  const client_id = getClientID();
+  const client_secret = getClientSecret();
+  const token = "https://accounts.spotify.com/api/token";
+
   try {
-    const response = await axios.post(TOKEN, body, {
+    const response = await axios.post(token, body, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': 'Basic ' + Buffer.from(client_id + ":" + client_secret).toString('base64')
@@ -86,9 +88,7 @@ async function handleRedirect(req, res) {
 
       // Automatically activates schedulePlaybackState after login is complete  
       setRequestPlayer(true);
-      if (getRequestPlayer()) {
-        schedulePlaybackState();
-      }
+      // CHANGE activate requestPlaybackState job here
 
       res.redirect('/songs'); 
     } catch (error) {

@@ -44,6 +44,14 @@
         <%= !logState ? "checked" : "" %> > Disabled
         <button type="submit">Save</button>
     </form>
+
+    <form action="/admin/submitArchiveData" method="POST" enctype="multipart/form-data">
+        <label for="archiveData">Submit Archive File:</label>
+        <input type="file" id="archiveData" name="archiveData" accept=".json" required>
+
+        <button type="submit">Submit</button>
+    </form>
+    
     </div>
 
     <div class="center-div">
@@ -58,9 +66,13 @@
     <div>
         <h4 class="paragraph-about-center">Database overview</h4>
     <ul>
-        <!-- CHANGE this to actually display songs as required -->
-        <% songs.forEach(song => { %>
-            <li><%= song.hello %></li>
+        <% listens.forEach(listen => { %>
+            <li><%= listen.data.item.name %> by <%= listen.data.item.artists[0].name %></li>
+        <% }) %>
+    </ul>
+    <ul>
+        <% testLogins.forEach(login => { %>
+            <li><%= login.hello %></li>
         <% }) %>
     </ul>
     </div>
