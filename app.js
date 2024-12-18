@@ -9,6 +9,8 @@ const app = express();
 app.set('view engine', 'ejs');
 
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
 app.use(logger)
 app.use('/public', express.static('public'));
 
@@ -41,6 +43,7 @@ connectToMongoDB().catch((err) => console.error('Database connection error:', er
 const db = client.db()
 const collection = db.collection('mySongs');
 const result = collection.insertOne({ hello: "goodbye" });
+
 
 
 module.exports = app;

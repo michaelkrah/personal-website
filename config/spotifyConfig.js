@@ -69,6 +69,18 @@ function setLogging(state) {
   spotifyLogging = state
 }
 
+// variable of last listened to song
+let lastListenedTo = null;
+
+function getLastListened() {
+  return lastListenedTo
+}
+
+function setLastListened(newState) {
+  lastListenedTo =  newState
+}
+
+
 module.exports = {
   getAccessToken,
   setAccessToken,
@@ -82,4 +94,6 @@ module.exports = {
   setRedirectURI,
   getClientID,
   getClientSecret,
+  getLastListened,
+  setLastListened,
 };

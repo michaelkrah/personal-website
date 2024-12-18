@@ -1,234 +1,92 @@
-let topAttributes = [];
-let attributeColorClasses = []
-let currentCalendarResponse = null;
-$(document).ready(function() {
-    // Calculate today's date
-    const today = new Date();
-    const formattedToday = today.toISOString().slice(0, 10); // Formats date to "YYYY-MM-DD"
+import { drawActivityChart } from './d3.js';
 
-    // Calculate the date one week ago
-    const oneWeekAgo = new Date(today);
-    oneWeekAgo.setDate(today.getDate() - 6);
-    const formattedOneWeekAgo = oneWeekAgo.toISOString().slice(0, 10);
 
-    // const today = new Date("2022-10-16");
-    // const oneWeekAgo = new Date("2022-10-9");
-    // const formattedToday = today.toISOString().slice(0, 10); // Formats date to "YYYY-MM-DD"
-    // const formattedOneWeekAgo = oneWeekAgo.toISOString().slice(0, 10);
-    // Set the default values
-    $('#startDate').val(formattedOneWeekAgo);
-    $('#endDate').val(formattedToday);
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('date-range-form');
+    const chartContainerId = 'chart';
 
-    $('#fetchData').click(function() {
-        const startDate = $('#startDate').val();
-        const endDate =  $('#endDate').val();
-        $.ajax({
-            
-            url: `/songs/api/get-data-from-interval?start=${startDate}&end=${endDate}`,
-            method: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                currentCalendarResponse = response;
-                // Use the received data to update the calendar
-                updateCalendar(response);
-            },
-            error: function(error) {
-                console.error("Error fetching data:", error);
+    if (typeof chartDataValues !== 'undefined') {
+        drawActivityChart(chartDataValues, chartDataTime, 'chart');
+    }
+
+
+    form.addEventListener('change', (event) => {
+        if (event.target.name === 'dateRange') {
+            const dateRange = event.target.value;
+            // 1734312725000
+            // const currentDate = new Date().toISOString().split('T')[0]; 
+            const currentDate = new Date(1734312725000);
+            let startDate = currentDate;
+            let endDate = startDate;
+            let offset = 0;
+
+            if (dateRange === "day") {
+                offset=0;
+            }  else if (dateRange === "week") {
+                offset = 6;
+            } else if (dateRange === "month") {
+                offset = 30;
+            } else if (dateRange === "sixMonth") {
+                offset = 182;
+            } else if (dateRange === "year") {
+                offset = 365
             }
-        });
-    });
-    $('#fetchData').click();
 
-    $("[name='customRadio']").change(function() {
-        let selectedValue = $(this).val();
-        const startDate = $('#startDate').val();
-        const endDate =  $('#endDate').val();
-        
-        // Perform an action based on the radio button selected
-        switch(parseInt(selectedValue)) {
-            case 1:
-                console.log("Button 1 selected");
-                updateCalendar(currentCalendarResponse);
-                break;
-            case 2:
-                console.log("Button 2 selected");
-                getTop(startDate, endDate, "song")
-                break;
-            case 3:
-                console.log("Button 3 selected");
-                getTop(startDate, endDate, "artist")
-                break;
-            case 4:
-                console.log("Button 4 selected");
-                getTop(startDate, endDate, "album")
-                break;
-            case 5:
-                console.log("Button 5 selected");
-                getTop(startDate, endDate, "genre")
-                break;
+            const endDateObj = new Date(endDate); 
+            const startDateObj = new Date(endDateObj); 
+            startDateObj.setDate(endDateObj.getDate() - offset); 
+            startDate = startDateObj.toISOString().split('T')[0]; 
+            endDateObj.setDate(endDateObj.getDate() + 1);
+            endDate = endDateObj.toISOString().split('T')[0];  
+            
+            fetch(`/songs/api/send-date-range`, {
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ startDate, endDate }),
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    document.getElementById('date-range-test').innerHTML = `
+                        <h2>Filtered Songs</h2>
+                        <ul>
+                            From ${data.startDate} to ${data.endDate} 
+                        </ul>
+                        <ul>
+                            Listened for ${data.minutesListened} minutes
+                        </ul>
+                        <ul>
+                        Listened to ${data.uniqueArtists} unique artists
+                        </ul>
+                        <ul>
+                        Listened to ${data.uniqueSongs} unique songs
+                        </ul>
+                    `;
+
+
+                
+                    clearChart(chartContainerId); // Clear the existing chart
+                    drawActivityChart(data.chartDataValues, data.chartDataTime, chartContainerId); // Draw the new chart
+
+
+                })
+                .catch((error) => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
         }
     });
-    const startDate = $('#startDate').val();
-    const endDate =  $('#endDate').val();
-    getTop(startDate, endDate, "song")
-
 });
 
 
-
-function updateCalendar(response) {
-    const grid = $(".grid");
-    grid.empty();
-    grid.css("grid-template-columns", `repeat(${response.numDays}, 1fr)`);
-    const gridWidth = grid.width();
-    response._data.forEach(item => {
-        const dayDiv = $('<div class="day"></div>');
-        if (Math.floor(gridWidth / response.numDays) < 40) {
-            $('<span></span>').text("").appendTo(dayDiv);
-        } else {
-            
-            const days = ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"];
-    
-            const date = new Date(item.day);
-            let weekDay = days[date.getDay()];
-            $('<span></span>').text(weekDay).appendTo(dayDiv);
-        }
-        
-        item.segments.forEach(segment => {
-            const segmentDiv = $('<div class="segment"></div>');
-            // Based on your structure, segment[1] contains the track or event data
-            if (segment[1] !== null) {
-                segmentDiv.addClass('active');
-            }
-            dayDiv.append(segmentDiv);
-        });
-
-        grid.append(dayDiv);
-    });
-
-    // Update the grid-template-columns based on the number of days
-    grid.css("grid-template-columns", `repeat(${response.numDays}, 1fr)`);
-}
-
-function getTop(startDate, endDate, attribute) {
-    $.ajax({
-            
-        url: `/songs/api/get-top-from-interval?start=${startDate}&end=${endDate}&attribute=${attribute}`,
-        method: 'GET',
-        dataType: 'json',
-        success: function(response) {
-            // Use the received data to update the calendar
-            updateTopAttributes(response);
-        },
-        error: function(error) {
-            console.error("Error fetching data:", error);
-        }
-    });
-}
-
-function updateCalendarAttributes(response) {
-    const grid = $(".grid");
-    grid.empty();
-    grid.css("grid-template-columns", `repeat(${response.numDays}, 1fr)`);
-    const gridWidth = grid.width();
-    response._data.forEach(item => {
-        const dayDiv = $('<div class="day"></div>');
-        if (Math.floor(gridWidth / response.numDays) < 40) {
-            $('<span></span>').text("").appendTo(dayDiv);
-        } else {
-            
-            const days = ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"];
-    
-            const date = new Date(item.day);
-            let weekDay = days[date.getDay()];
-            $('<span></span>').text(weekDay).appendTo(dayDiv);
-        }
-        
-        item.segments.forEach(segment => {
-            const segmentDiv = $('<div class="segment"></div>');
-            // Based on your structure, segment[1] contains the track or event data
-            
-            if ($('input[name="customRadio"]:checked').val() == "1" && segment[1] !== null) {
-                segmentDiv.addClass('active');
-            } else if ($('input[name="customRadio"]:checked').val() == "2" && segment[1] !== null && topAttributes.includes(segment[1].trackTitle)) {
-                segmentDiv.addClass(attributeColorClasses[segment[1].trackTitle]);
-
-            } else if ($('input[name="customRadio"]:checked').val() == "3" && segment[1] !== null && topAttributes.includes(segment[1].trackArtist)) {
-                segmentDiv.addClass(attributeColorClasses[segment[1].trackArtist]);
-
-            } else if ($('input[name="customRadio"]:checked').val() == "4" && segment[1] !== null && segment[1].trackAlbum !== null && topAttributes.includes(segment[1].trackAlbum)) {
-                segmentDiv.addClass(attributeColorClasses[segment[1].trackAlbum]);
-
-            } else if ($('input[name="customRadio"]:checked').val() == "5" && segment[1] !== null && segment[1].genres !== null && segment[1].genres.some(genre => topAttributes.includes(genre))) {
-                let numGenre = 0
-                for (i = 0; i < segment[1].genres; i++) {
-                    if (topAttributes.includes(segment[1].genres[i])) {
-                        numGenre = i;
-                        break;
-                    }
-                }
-                segmentDiv.addClass(attributeColorClasses[segment[1].genres[numGenre]]);
-            } else if (segment[1] !== null) {
-                segmentDiv.addClass('other');
-            }
-            dayDiv.append(segmentDiv);
-        });
-
-        grid.append(dayDiv);
-    });
-
-    // Update the grid-template-columns based on the number of days
-    grid.css("grid-template-columns", `repeat(${response.numDays}, 1fr)`);
-}
-
-function updateTopAttributes(response) {
-    topAttributes = [];
-    attributeColorClasses = [];
-
-
-    topAttributes = response.map(item => item.trackAttribute[0]);
-    console.log(topAttributes)
-    for (let i = 0; i < topAttributes.length; i++) {
-        attributeColorClasses[topAttributes[i]] = `color-class-${i + 1}`;
+function clearChart(containerId) {
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.innerHTML = ''; // Remove all child elements
     }
-    console.log(attributeColorClasses)
-    console.log("here")
-    console.log(response[0])
-    for (let i = 0; i < response.length; i++) {
-        let trackAttribute = response[i].trackAttribute[0]; // Get the first trackAttribute
-        $("#middle" + (i + 1)).text(trackAttribute); // Update the corresponding middle div
-    }
-    if (currentCalendarResponse.numDays < 14) {
-        updateCalendarAttributes(currentCalendarResponse);
-    }
-    
-};
-
-function updateSong() {
-    console.log("getting current song")
-    $.ajax({
-        url: `/songs/api/get-current-song`,
-        method: 'GET',
-        success: function(data) {
-            if (data.trackTitle.charAt(0) === "_") {
-                $('#songDisplay').html("Not listening to music :(");
-                $('#songArtist').html("");
-                $("#songImage").attr("src", "");
-            } else {
-                $('#songDisplay').html(data.trackTitle);
-                const songUrl = `https://open.spotify.com/track/${data.trackID}`; // Replace with your actual path and pattern
-                $('#songDisplay').attr('href', songUrl);
-                $('#songArtist').html(data.trackArtist);
-                const artistUrl = `https://open.spotify.com/artist/${data.artistID}`; // Replace with your actual path and pattern
-                $('#songArtist').attr('href', artistUrl);
-                $("#songImage").attr("src", data.albumImage);
-            }
-            
-            setTimeout(updateSong, 5000);  // Update every 5 seconds
-        }
-    });
 }
-
-updateSong();
-
-

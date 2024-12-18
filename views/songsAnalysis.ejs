@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href= "/public/assets/styles.css" rel="stylesheet" type="text/css" />
+    <link href= "/public/assets/stylesSongs.css" rel="stylesheet" type="text/css" />
     <link rel="icon" href="/public/favicon.ico"> <!--https://icons8.com/icon/qhTRpW6HOKIT/lobster"-->
 
     <title>Songs!</title>
@@ -18,6 +18,69 @@
         <a href="/contact" id="nav-item" > Contact </a>
         <a href="/songs" id="songs-header"> Songs </a>
     </nav>
-    Songs
+   
+
+    <main>
+        Songs!!
+        <div id="date-range-selector">
+            <h3>Select Date Range:</h3>
+            <form id="date-range-form">
+                <label>
+                    <input type="radio" name="dateRange" value="day" > D
+                </label>
+                <label>
+                    <input type="radio" name="dateRange" value="week" checked> W
+                </label>
+                <label>
+                    <input type="radio" name="dateRange" value="month"> M
+                </label>
+                <label>
+                    <input type="radio" name="dateRange" value="sixMonth"> 6 M
+                </label>
+                <label>
+                    <input type="radio" name="dateRange" value="year">  Y
+                </label>
+                
+            </form>
+        </div>
+
+        <div id="date-range-test">
+            <h2>Filtered Songs</h2>
+        <ul>
+            From <%= startDate %> to <%= endDate %>
+        </ul>
+        <ul>
+            Listened for <%= minutesListened %> minutes
+        </ul>
+        <ul>
+        Listened to  <%=  uniqueArtists %> unique artists
+        </ul>
+        <ul>
+        Listened to <%=  uniqueSongs %>  unique songs
+        </ul>
+        </div>
+
+        <div id="current-song">
+            <% if (currentSong) { %>
+                Now Playing: <%= currentSong.name %> by <%= currentSong.artists[0].name %>
+            <% } else { %>
+                No song is currently playing
+            <% } %>
+        </div>
+
+        <div id="chart" class="chart"></div>
+
+</main>
+
+    <script>
+        const chartDataValues = <%- JSON.stringify(chartDataValues) %>;
+        const chartDataTime = <%- JSON.stringify(chartDataTime) %>;
+    </script>
+    <script src="../public/websocketClient.js"></script>
+    <script type="module" src="../public/scripts.js"></script>
+   
+
+
+
 </body>
 </html>

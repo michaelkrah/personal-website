@@ -6,6 +6,9 @@ const { client } = require('../config/dbConfig');
 
 const db = client.db();
 const collection = db.collection('tracksBeta');
+const collectionTracks2 = db.collection('tracksPreBeta');
+const collectionDateTester = db.collection('tracksBetaDateTesting');
+
 
 let lastTrack = null;
 
@@ -51,7 +54,6 @@ async function processTrack(last) {
   }
   console.log("Inserting new object", last.listens)
   const result = await collection.insertOne(last);
-
   return true;
 }
 
@@ -59,45 +61,69 @@ async function processTrack(last) {
 
 
 async function getTracksFromInterval(startDate, endDate) {
-  const db = client.db();
-  const collection = db.collection('mySongs');
-
   try {
-    const tracks = await collection
-      .find({ startDate: { $gte: startDate }, endDate: { $lte: endDate } })
-      .toArray();
+    let startDateObj = new Date(startDate)
+    let endDateObj = new Date(endDate)
+    const tracks = await collectionDateTester.find({
+        listenTime: {
+            $gte: startDateObj.getTime(),
+            $lte: endDateObj.getTime()
+
+        },
+    }).toArray();
     return tracks;
-  } catch (err) {
-    console.error('Error fetching tracks:', err);
-    throw err;
-  }
+} catch (error) {
+    console.error('Error fetching listens in range:', error);
+    throw new Error('Unable to fetch listens.');
+}
 }
 
-async function topInterval(startDate, endDate, attribute) {
-  const db = client.db();
-  const collection = db.collection('mySongs');
+async function getTopFromInterval(startDate, endDate, attribute) {
+  const startDateObj = new Date(startDate);
+  const endDateObj = new Date(endDate);
 
-  const pipelines = {
-    song: [
-      { $match: { startDate: { $gte: startDate, $lte: endDate } } },
-      { $group: { _id: '$trackID', trackAttribute: { $addToSet: '$trackTitle' }, count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-      { $limit: 5 },
-    ],
-    artist: [
-      { $match: { startDate: { $gte: startDate, $lte: endDate } } },
-      { $group: { _id: '$trackArtist', trackAttribute: { $addToSet: '$trackArtist' }, count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-      { $limit: 5 },
-    ],
+  const attributeFields = {
+    tracks: '$data.item.id',
+    artists: '$data.item.artists.id', // Access the first artist in the array
   };
 
+  const displayFields = {
+      tracks: '$data.item.name',
+      artists: '$data.item.artists.name',
+  };
+  const attributeField = attributeFields[attribute];
+  const displayField = displayFields[attribute];
+
+  if (!attributeField) {
+      throw new Error(`Invalid attribute: ${attribute}`);
+  }
+
+  const pipeline = [
+    {
+        $match: {
+            listenTime: {
+                $gte: startDateObj.getTime(), 
+                $lte: endDateObj.getTime(),
+            },
+            "data.item.artists.0.id": { $exists: true }
+        },
+    },
+    {
+        $group: {
+            _id: attributeField,
+            trackAttribute: { $addToSet: displayField }, 
+            count: { $sum: 1 },
+        },
+    },
+    { $sort: { count: -1 } },
+    { $limit: 5 }, 
+];
   try {
-    return await collection.aggregate(pipelines[attribute]).toArray();
+      return await collectionDateTester.aggregate(pipeline).toArray();
   } catch (err) {
-    console.error('Error aggregating tracks:', err);
-    throw err;
+      console.error('Error aggregating top results:', err);
+      throw err;
   }
 }
 
-module.exports = { getTracksFromInterval, topInterval, handleListen };
+module.exports = { getTracksFromInterval, getTopFromInterval, handleListen };

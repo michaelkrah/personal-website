@@ -2,7 +2,7 @@
 const {client} = require("../config/dbConfig");
 const axios = require('axios');
 
-const {getAccessToken} = require("../config/spotifyConfig");
+const {getAccessToken, setLastListened} = require("../config/spotifyConfig");
 const { refreshAccessToken } = require("./spotifyService");
 const {handleListen} = require("./trackService");
 const PLAYER =  "https://api.spotify.com/v1/me/player";
@@ -40,6 +40,7 @@ async function requestPlaybackState() {
         if (!response) {
             return;
         } else if (response.status === 204) {
+            setLastListened(null);
             // pass, no data returned
         } else if (response.status === 200) {
             if (response.data.currently_playing_type && response.data.currently_playing_type  === 'track') {
@@ -47,7 +48,10 @@ async function requestPlaybackState() {
                 const listen = {ingestionTime: currentTime.getTime(), listenTime: response.data.timestamp, data: response.data};
                 const result = await collectionListens.insertOne(listen);
 
+                
+
                 if (result) {
+                    setLastListened(listen)
                     await handleListen(listen, result);
                 }
             }
@@ -207,8 +211,28 @@ async function processArchiveTrack(track) {
 }
 
 
+async function getListensFromInterval(startDate, endDate) {
+    try {
+        let startDateObj = new Date(startDate)
+        let endDateObj = new Date(endDate)
+        const listens = await collectionListens.find({ // CHANGE
+            listenTime: {
+                $gte: startDateObj.getTime(),
+                $lte: endDateObj.getTime()
+
+            },
+        }).toArray();
+
+        return listens;
+    } catch (error) {
+        console.error('Error fetching listens in range:', error);
+        throw new Error('Unable to fetch listens.');
+    }
+};
+
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-module.exports = {requestPlaybackState, processArchiveFile};
+module.exports = {requestPlaybackState, processArchiveFile, getListensFromInterval};
