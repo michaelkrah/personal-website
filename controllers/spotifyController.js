@@ -30,22 +30,28 @@ async function getAnalysisFromRange(startDate, endDate) {
     dateTracker.setDate(dateTracker.getDate() + 1); 
   }
 
+  console.time("Execution Time");
 
 
-  for (listen in listens) {
-    let listenDate = new Date(listens[listen].listenTime);
-    const dateKey = listenDate.toISOString().split('T')[0]; 
+  // CHANGE, make into large solid blocks for each separate interval, should speed up drawing
+  for (track in tracks) {
+    let listenDate = new Date(tracks[track].listenTime);
+    let listenTime = tracks[track].listens.length
     let hour = listenDate.getHours(); 
     let minutes = listenDate.getMinutes(); 
     let seconds = listenDate.getSeconds(); 
 
     let start = hour + (((minutes * 60) + seconds) / 3600)
-    let end = hour + (((minutes * 60) + seconds + 90) / 3600)
+    let end = hour + (((minutes * 60) + seconds + (30 * (listenTime+2))) / 3600)
 
+    listenDate = new Date(tracks[track].listenTime - 18000000); // lazy way to convert date to est consistently
+    const dateKey = listenDate.toISOString().split('T')[0]; 
 
     chartData.push({day: dateKey, start: start, end:  end})
 
   };
+
+  console.timeEnd("Execution Time");
 
 
 

@@ -13,9 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('change', (event) => {
         if (event.target.name === 'dateRange') {
             const dateRange = event.target.value;
-            // 1734312725000
-            // const currentDate = new Date().toISOString().split('T')[0]; 
-            const currentDate = new Date(1734312725000);
+            const currentDate = new Date().toISOString().split('T')[0]; 
             let startDate = currentDate;
             let endDate = startDate;
             let offset = 0;
@@ -70,9 +68,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
 
 
-                
+                    console.time("D3 Execution Time 1");
+
                     clearChart(chartContainerId); // Clear the existing chart
+                    console.timeEnd("D3 Execution Time 1");
+
+                    console.time("D3 Execution Time 2");
+
                     drawActivityChart(data.chartDataValues, data.chartDataTime, chartContainerId); // Draw the new chart
+                    console.timeEnd("D3 Execution Time 2");
 
 
                 })

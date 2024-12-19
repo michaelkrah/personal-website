@@ -64,7 +64,7 @@ async function getTracksFromInterval(startDate, endDate) {
   try {
     let startDateObj = new Date(startDate)
     let endDateObj = new Date(endDate)
-    const tracks = await collectionDateTester.find({
+    const tracks = await collection.find({
         listenTime: {
             $gte: startDateObj.getTime(),
             $lte: endDateObj.getTime()
@@ -119,7 +119,7 @@ async function getTopFromInterval(startDate, endDate, attribute) {
     { $limit: 5 }, 
 ];
   try {
-      return await collectionDateTester.aggregate(pipeline).toArray();
+      return await collection.aggregate(pipeline).toArray();
   } catch (err) {
       console.error('Error aggregating top results:', err);
       throw err;
