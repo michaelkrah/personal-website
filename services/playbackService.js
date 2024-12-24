@@ -1,11 +1,11 @@
 // function to request and store individual instantaneous playback states as they are returned by spotify
-const {client} = require("../config/dbConfig");
+const { client } = require("../config/dbConfig");
 const axios = require('axios');
 
-const {getAccessToken, setLastListened} = require("../config/spotifyConfig");
+const { getAccessToken, setLastListened } = require("../config/spotifyConfig");
 const { refreshAccessToken } = require("./spotifyService");
-const {handleListen} = require("./trackService");
-const PLAYER =  "https://api.spotify.com/v1/me/player";
+const { handleListen } = require("./trackService");
+const PLAYER = "https://api.spotify.com/v1/me/player";
 
 const db = client.db();
 const collectionListens = db.collection('listensBeta');
@@ -13,22 +13,27 @@ const collectionTracks = db.collection('tracksBeta');
 const collectionTracks2 = db.collection('tracksPreBeta');
 const collectionListens2 = db.collection('listensPreBeta');
 
-universalTrackData =  {"device": {"id": "325f13c1132a9c7166a85b7f4933717c16452a0f",
-      "is_active": true,"is_private_session": false,"is_restricted": false,
-      "name": "DESKTOP-GF7RQTK","supports_volume": true,"type": "Computer","volume_percent": 0},
+universalTrackData = {
+    "device": {
+        "id": "325f13c1132a9c7166a85b7f4933717c16452a0f",
+        "is_active": true, "is_private_session": false, "is_restricted": false,
+        "name": "DESKTOP-GF7RQTK", "supports_volume": true, "type": "Computer", "volume_percent": 0
+    },
     "shuffle_state": true, "smart_shuffle": false, "repeat_state": "off", "timestamp": 0,
-    "context": { "external_urls": {"spotify": "https://open.spotify.com/collection/tracks"},
-      "href": "https://api.spotify.com/v1/me/tracks","type": "collection","uri": "spotify:user:michaelkrah:collection"},
+    "context": {
+        "external_urls": { "spotify": "https://open.spotify.com/collection/tracks" },
+        "href": "https://api.spotify.com/v1/me/tracks", "type": "collection", "uri": "spotify:user:michaelkrah:collection"
+    },
     "progress_ms": 0,
     "item": {},
     "currently_playing_type": "track",
     "actions": {
-      "disallows": {
-        "resuming": true
-      }
+        "disallows": {
+            "resuming": true
+        }
     },
     "is_playing": true
-  }
+}
 
 let counter = 0;
 async function requestPlaybackState() {
@@ -36,19 +41,19 @@ async function requestPlaybackState() {
         console.log("Requesting playback state", counter);
         counter++;
         const response = await currentlyPlaying()
-        
+
         if (!response) {
             return;
         } else if (response.status === 204) {
             setLastListened(null);
             // pass, no data returned
         } else if (response.status === 200) {
-            if (response.data.currently_playing_type && response.data.currently_playing_type  === 'track') {
+            if (response.data.currently_playing_type && response.data.currently_playing_type === 'track') {
                 const currentTime = new Date();
-                const listen = {ingestionTime: currentTime.getTime(), listenTime: response.data.timestamp, data: response.data};
+                const listen = { ingestionTime: currentTime.getTime(), listenTime: response.data.timestamp, data: response.data };
                 const result = await collectionListens.insertOne(listen);
 
-                
+
 
                 if (result) {
                     setLastListened(listen)
@@ -63,7 +68,7 @@ async function requestPlaybackState() {
     } catch (error) {
         console.error("Error requesting playback state:", error);
     }
-    
+
 }
 
 async function currentlyPlaying(retry = true) {
@@ -77,7 +82,7 @@ async function currentlyPlaying(retry = true) {
             const refreshed = await refreshAccessToken();
             if (refreshed) {
                 return currentlyPlaying(false);
-            } 
+            }
         }
         console.error("Error fetching currently playing:", error);
     }
@@ -85,20 +90,20 @@ async function currentlyPlaying(retry = true) {
 
 async function callApi(method, url, body = null) {
     const config = {
-      method: method,
-      url: url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + getAccessToken()
-      },
+        method: method,
+        url: url,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getAccessToken()
+        },
     };
-  
+
     if (body && method !== 'GET') {
-      config.data = body;
+        config.data = body;
     }
-  
+
     return axios(config);
-  }
+}
 
 let count = 0;
 async function processArchiveFile(jsonData) {
@@ -114,8 +119,8 @@ async function processArchiveFile(jsonData) {
     // Count the number of entries in the JSON array
     const totalEntries = jsonData.length;
     count = 0;
-    // const result = await collectionTracks2.deleteMany({});
-    // const result2 = await collectionListens2.deleteMany({});
+    // const result = await collectionTracks.deleteMany({});
+    // const result2 = await collectionListens.deleteMany({});
 
 
     for (const entry of jsonData) {
@@ -124,7 +129,7 @@ async function processArchiveFile(jsonData) {
         } catch (error) {
             console.error(`Error in processArchiveTrack at ${count}:`, error);
         }
-        
+
     }
     console.log(`Total number of entries in archive file: ${totalEntries}`);
 
@@ -143,25 +148,27 @@ async function processArchiveTrack(track) {
         return;
     }
 
-    const listenTime = new Date(track.ts).getTime(); 
+    const listenTime = new Date(track.ts).getTime();
 
     // check database to make sure this track has not already been processed
-    let checkDuplicate = await collectionTracks2.find({"listenTime": listenTime}).toArray();
+    let checkDuplicate = await collectionTracks.find({ "listenTime": listenTime }).toArray();
     if (checkDuplicate.length > 0 && checkDuplicate[0].data.item.uri === track.spotify_track_uri) {
         console.log(`Track ${count} has already been processed, from`, listenTime, checkDuplicate[0].data.item.name);
         return;
     }
-    
+
+
     // call api to get song data correct format if the song has not already been stored
     let data = null;
     let calculatedValues = {};
-    let storedTrack = await collectionTracks2.find({"data.item.uri": track.spotify_track_uri}).toArray();
-    
+    let storedTrack = await collectionTracks.find({ "data.item.uri": track.spotify_track_uri }).toArray();
+    console.log("Processing track", count)
+
     if (storedTrack.length > 0) {
         // this track has been seen before, no need to call spotify api and can just process with available info
         storedTrack = storedTrack[0].data;
         // will modify listening time and progress, then use it as the data
-        storedTrack.timestamp = listenTime; 
+        storedTrack.timestamp = listenTime;
         storedTrack.progress_ms = track.ms_played;
         data = storedTrack;
     } else {
@@ -193,20 +200,20 @@ async function processArchiveTrack(track) {
     let listenTimeOffset = 0;
     let listenTimeOffsetOriginal = 0;
 
-    while (listenTimeOffset+listenTimeOffsetOriginal < track.ms_played) {
+    while (listenTimeOffset + listenTimeOffsetOriginal < track.ms_played) {
         let listens = [];
-        while(listenTimeOffset < Math.min(track.ms_played, data.item.duration_ms)) {
+        while (listenTimeOffset < Math.min(track.ms_played, data.item.duration_ms)) {
             const currentTime = new Date();
-            const listen = {ingestionTime: currentTime.getTime(), listenTime: listenTime + listenTimeOffset, data}
-            const result = await collectionListens2.insertOne(listen);
+            const listen = { ingestionTime: currentTime.getTime(), listenTime: listenTime + listenTimeOffset, data }
+            const result = await collectionListens.insertOne(listen);
             listens.push(listen._id);
-            listenTimeOffset = listenTimeOffset + 30000; 
+            listenTimeOffset = listenTimeOffset + 30000;
         }
-        data.item.timestamp = listenTime+listenTimeOffsetOriginal;
-        finalTrack = {listens: listens, listenTime: listenTime+listenTimeOffsetOriginal, data: data, calculatedValues: calculatedValues}
-        const result = await collectionTracks2.insertOne(finalTrack);
+        data.item.timestamp = listenTime + listenTimeOffsetOriginal;
+        finalTrack = { listens: listens, listenTime: listenTime + listenTimeOffsetOriginal, data: data, calculatedValues: calculatedValues }
+        const result = await collectionTracks.insertOne(finalTrack);
         listenTimeOffsetOriginal = listenTimeOffsetOriginal + listenTimeOffset;
-        listenTimeOffset = 30000;   
+        listenTimeOffset = 30000;
     }
 }
 
@@ -215,12 +222,20 @@ async function getListensFromInterval(startDate, endDate) {
     try {
         let startDateObj = new Date(startDate)
         let endDateObj = new Date(endDate)
-        const listens = await collectionListens.find({ // CHANGE
+        // Only querying listening time, no data related to what was playing
+        const listens = await collectionListens.find({
             listenTime: {
                 $gte: startDateObj.getTime(),
                 $lte: endDateObj.getTime()
 
             },
+        }, {
+            projection: {
+                listenTime: 1,
+                "data.item.name": 1,
+                "data.item.id": 1,
+                "data.item.artists.id": 1,
+            }
         }).toArray();
 
         return listens;
@@ -235,4 +250,4 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-module.exports = {requestPlaybackState, processArchiveFile, getListensFromInterval};
+module.exports = { requestPlaybackState, processArchiveFile, getListensFromInterval };

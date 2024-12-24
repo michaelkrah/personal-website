@@ -4,6 +4,10 @@ import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7/+esm';
 
 export function drawActivityChart(data, chartDataTime, containerId) {
     // Dimensions and margins
+    const filteredData = data.filter(d => chartDataTime.includes(d.day));
+    const backgroundData = chartDataTime.map(day => ({ day }));
+
+
     const margin = { top: 20, right: 30, bottom: 40, left: 50 };
     const width = 800 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
@@ -20,7 +24,7 @@ export function drawActivityChart(data, chartDataTime, containerId) {
 
     const yScale = d3
         .scaleLinear()
-        .domain([0, 24]) 
+        .domain([0, 24])
         .range([0, height]);
 
     // Create an SVG container
@@ -43,7 +47,7 @@ export function drawActivityChart(data, chartDataTime, containerId) {
 
     svg
         .selectAll('.background')
-        .data(data)
+        .data(backgroundData)
         .enter()
         .append('rect')
         .attr('class', 'background')
@@ -51,11 +55,11 @@ export function drawActivityChart(data, chartDataTime, containerId) {
         .attr('y', 0)
         .attr('height', height)
         .attr('width', xScale.bandwidth())
-        .style('fill', '#333'); 
+        .style('fill', '#333');
 
-        svg
+    svg
         .selectAll('.bar')
-        .data(data)
+        .data(filteredData)
         .enter()
         .append('rect')
         .attr('class', 'bar')

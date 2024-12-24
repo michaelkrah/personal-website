@@ -13,14 +13,15 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('change', (event) => {
         if (event.target.name === 'dateRange') {
             const dateRange = event.target.value;
-            const currentDate = new Date().toISOString().split('T')[0]; 
+            const currentDate = new Date().toISOString().split('T')[0];
+            // console.log(currentDate);
             let startDate = currentDate;
             let endDate = startDate;
             let offset = 0;
 
             if (dateRange === "day") {
-                offset=0;
-            }  else if (dateRange === "week") {
+                offset = 0;
+            } else if (dateRange === "week") {
                 offset = 6;
             } else if (dateRange === "month") {
                 offset = 30;
@@ -30,15 +31,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 offset = 365
             }
 
-            const endDateObj = new Date(endDate); 
-            const startDateObj = new Date(endDateObj); 
-            startDateObj.setDate(endDateObj.getDate() - offset); 
-            startDate = startDateObj.toISOString().split('T')[0]; 
+            const endDateObj = new Date(endDate);
+            const startDateObj = new Date(endDateObj);
+            startDateObj.setDate(endDateObj.getDate() - offset);
+            startDate = startDateObj.toISOString().split('T')[0];
             endDateObj.setDate(endDateObj.getDate() + 1);
-            endDate = endDateObj.toISOString().split('T')[0];  
-            
+            endDate = endDateObj.toISOString().split('T')[0];
+
             fetch(`/songs/api/send-date-range`, {
-                method: 'POST', 
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -68,16 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
 
 
-                    console.time("D3 Execution Time 1");
 
                     clearChart(chartContainerId); // Clear the existing chart
-                    console.timeEnd("D3 Execution Time 1");
-
-                    console.time("D3 Execution Time 2");
 
                     drawActivityChart(data.chartDataValues, data.chartDataTime, chartContainerId); // Draw the new chart
-                    console.timeEnd("D3 Execution Time 2");
-
 
                 })
                 .catch((error) => {
