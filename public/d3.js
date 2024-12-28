@@ -2,9 +2,84 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7/+esm';
 
 
-export function drawActivityChart(data, chartDataTime, containerId) {
+// function drawActivityChart(data, chartDataTime, containerId) {
+//     // Dimensions and margins
+//     const filteredData = data.filter(d => chartDataTime.includes(d.day));
+//     const backgroundData = chartDataTime.map(day => ({ day }));
+
+
+
+//     const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+//     const width = 800 - margin.left - margin.right;
+//     const height = 400 - margin.top - margin.bottom;
+
+//     // Days of the week
+//     const days = chartDataTime
+//     const tickValues = days.filter((_, index) => index % Math.ceil(days.length / 7) === 0);
+
+
+//     // Create scales
+//     const xScale = d3
+//         .scaleBand()
+//         .domain(days)
+//         .range([0, width])
+//         .padding(0.1);
+
+//     const yScale = d3
+//         .scaleLinear()
+//         .domain([0, 24])
+//         .range([0, height]);
+
+//     // Create an SVG container
+//     const svg = d3
+//         .select(`#${containerId}`)
+//         .append('svg')
+//         .attr('width', width + margin.left + margin.right)
+//         .attr('height', height + margin.top + margin.bottom)
+//         .append('g')
+//         .attr('transform', `translate(${margin.left},${margin.top})`);
+
+//     // Draw axes
+//     svg
+//         .append('g')
+//         .attr('transform', `translate(0,${height})`)
+//         .call(d3.axisBottom(xScale).tickValues(tickValues));
+
+
+//     svg.append('g').call(d3.axisLeft(yScale));
+
+
+//     svg
+//         .selectAll('.background')
+//         .data(backgroundData)
+//         .enter()
+//         .append('rect')
+//         .attr('class', 'background')
+//         .attr('x', d => xScale(d.day))
+//         .attr('y', 0)
+//         .attr('height', height)
+//         .attr('width', xScale.bandwidth())
+//         .style('fill', '#333');
+
+//     svg
+//         .selectAll('.bar')
+//         .data(filteredData)
+//         .enter()
+//         .append('rect')
+//         .attr('class', 'bar')
+//         .attr('x', d => xScale(d.day))
+//         .attr('y', d => yScale(d.start))
+//         .attr('height', d => yScale(d.end) - yScale(d.start))
+//         .attr('width', xScale.bandwidth())
+//         .style('fill', '#1db954')
+// }
+
+
+function drawActivityChart(data, chartDataTime, chartOptionalData, containerId) {
     // Dimensions and margins
     const filteredData = data.filter(d => chartDataTime.includes(d.day));
+
+
     const backgroundData = chartDataTime.map(day => ({ day }));
 
 
@@ -12,8 +87,22 @@ export function drawActivityChart(data, chartDataTime, containerId) {
     const width = 800 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
+
+    let dataColor = '#1db954';
+    if (chartOptionalData) {
+        dataColor = '#424242';
+        chartOptionalData = chartOptionalData.filter(d => chartDataTime.includes(d.day));
+    }
+
     // Days of the week
     const days = chartDataTime
+    const tickValues = days.filter((_, index) => index % Math.ceil(days.length / 7) === 0);
+
+    const entryValues = Array.from(new Set(filteredData.map(d => d.entry))); // Unique entry values
+    const colorScale = d3
+        .scaleOrdinal()
+        .domain(entryValues)
+        .range(d3.schemeCategory10);
 
     // Create scales
     const xScale = d3
@@ -40,7 +129,8 @@ export function drawActivityChart(data, chartDataTime, containerId) {
     svg
         .append('g')
         .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(xScale));
+        .call(d3.axisBottom(xScale).tickValues(tickValues));
+
 
     svg.append('g').call(d3.axisLeft(yScale));
 
@@ -55,7 +145,8 @@ export function drawActivityChart(data, chartDataTime, containerId) {
         .attr('y', 0)
         .attr('height', height)
         .attr('width', xScale.bandwidth())
-        .style('fill', '#333');
+        .style('fill', '#292929');
+
 
     svg
         .selectAll('.bar')
@@ -67,5 +158,21 @@ export function drawActivityChart(data, chartDataTime, containerId) {
         .attr('y', d => yScale(d.start))
         .attr('height', d => yScale(d.end) - yScale(d.start))
         .attr('width', xScale.bandwidth())
-        .style('fill', '#1db954')
+        .style('fill', dataColor)
+
+    if (chartOptionalData) {
+        svg
+            .selectAll('.optional-bar')
+            .data(chartOptionalData)
+            .enter()
+            .append('rect')
+            .attr('class', 'optional-bar')
+            .attr('x', d => xScale(d.day))
+            .attr('y', d => yScale(d.start))
+            .attr('height', d => yScale(d.end) - yScale(d.start))
+            .attr('width', xScale.bandwidth())
+            .style('fill', d => colorScale(d.entry));
+    }
 }
+
+export { drawActivityChart };

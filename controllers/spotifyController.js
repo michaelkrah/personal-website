@@ -11,9 +11,18 @@ async function getAnalysisFromRange(startDate, endDate) {
 
   const tracks = await getTracksFromInterval(startDate, endDate);
 
+  console.time("Querying top results")
+  // CHANGE, ok for now as a lazy proof of concept, optimize in the future
+  // can try just querying separately, might be faster 
+  // alternatively can do this as an async call, send data when it's received, might be ideal but would require sig restructing 
+
   const topTracks = await getTopFromInterval(startDate, endDate, "tracks");
   const topArtists = await getTopFromInterval(startDate, endDate, "artists");
+  console.timeEnd("Querying top results")
 
+
+  // console.log("topTracks", topTracks);
+  // console.log("topArtists", topArtists);
 
   const uniqueTracks = new Set(tracks.map(track => track.data.item.id));
   const uniqueArtists = new Set(tracks.map(track => track.data.item.artists[0]?.id).filter(Boolean));
@@ -32,43 +41,47 @@ async function getAnalysisFromRange(startDate, endDate) {
     dateTracker.setDate(dateTracker.getDate() + 1);
   }
 
-  // Object that represents a period of listening to music, includes a date and a start and end time
+  // Object that represents a period of listening to music, includes a date and a start and end time, entry used for coloring, 0 is default
   minutesListened = 0;
-  let listeningBlock = { day: null, start: null, end: null };
+  let listeningBlock = { entry: 0, day: null, start: null, end: null };
   for (let track in tracks) {
     let listenDate = new Date(tracks[track].listenTime);
-    let listenTime = tracks[track].listens.length
+    let listenTime = tracks[track].listens.length;
     let hour = listenDate.getHours();
     let minutes = listenDate.getMinutes();
     let seconds = listenDate.getSeconds();
 
     let start = hour + (((minutes * 60) + seconds) / 3600)
-    let end = hour + (((minutes * 60) + seconds + (30 * (listenTime + 2))) / 3600)
+    let end = hour + (((minutes * 60) + seconds + (30 * (listenTime + 2))) / 3600) // listenTime + 2 creates a minute long buffer for listening blocks
 
     listenDate = new Date(tracks[track].listenTime - 18000000); // lazy way to convert date to est consistently
     const dateKey = listenDate.toISOString().split('T')[0];
 
     minutesListened += listenTime;
 
+
     if (Number(track) === 0) {
       // base case, first object encountered
-      listeningBlock = { day: dateKey, start: start, end: end };
+      listeningBlock = { entry: 0, day: dateKey, start: start, end: end };
       continue;
     }
     // If the current track is from a different day or occurs more than 2 minutes after the previous track, Math.abs() fixes an edgecase where the time loops around 
     // start a new rectangle block for visualiation
 
-    if (dateKey != listeningBlock.day || Math.abs(start - listeningBlock.end) > 1 / 30) {
+    if (dateKey != listeningBlock.day || start - listeningBlock.end > 1 / 30 || Math.abs(start - listeningBlock.end) > 1) {
       chartData.push(listeningBlock);
-      listeningBlock = { day: dateKey, start: start, end: end };
-
+      listeningBlock = { entry: 0, day: dateKey, start: start, end: end };
     } else {
       listeningBlock.end = end;
     }
   };
   chartData.push(listeningBlock);
-  console.log(chartData);
-  console.log(datesListString);
+
+  // create lists to hold the top tracks, artists, etc. to recolor the chart as necessary
+
+  const chartTopTracks = chartDataConversion(topTracks);
+  const chartTopArtists = chartDataConversion(topArtists);
+
   return {
     startDate: startDate,
     endDate: endDate,
@@ -80,8 +93,38 @@ async function getAnalysisFromRange(startDate, endDate) {
     minutesListened: Math.ceil(minutesListened * 0.5),
     chartDataTime: datesListString,
     chartDataValues: chartData,
+    chartTopTracks: chartTopTracks,
+    chartTopArtists: chartTopArtists,
   }
 };
+
+function chartDataConversion(topList) {
+  let chartTopData = [];
+  for (let object in topList) {
+    let entries = topList[object].entries;
+    for (let entry in entries) {
+
+      let listenDate = new Date(entries[entry].listenTime);
+      let listenTime = entries[entry].listens.length
+      let hour = listenDate.getHours();
+      let minutes = listenDate.getMinutes();
+      let seconds = listenDate.getSeconds();
+
+      let start = hour + (((minutes * 60) + seconds) / 3600)
+      let end = hour + (((minutes * 60) + seconds + (30 * (listenTime))) / 3600)
+
+      listenDate = new Date(entries[entry].listenTime - 18000000);
+      const dateKey = listenDate.toISOString().split('T')[0];
+
+      // entries labeled from 1 to x + 1, 0 is the default
+      listeningBlock = { entry: Number(object) + 1, day: dateKey, start: start, end: end };
+
+      chartTopData.push(listeningBlock)
+    }
+  }
+
+  return chartTopData;
+}
 
 module.exports = {
   getLastListened,

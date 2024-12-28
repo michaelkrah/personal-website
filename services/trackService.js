@@ -93,7 +93,7 @@ async function getTopFromInterval(startDate, endDate, attribute) {
 
   const attributeFields = {
     tracks: '$data.item.id',
-    artists: '$data.item.artists.id', // Access the first artist in the array
+    artists: '$data.item.artists.id', // Accesses the first artist in the array
   };
 
   const displayFields = {
@@ -114,18 +114,40 @@ async function getTopFromInterval(startDate, endDate, attribute) {
           $gte: startDateObj.getTime(),
           $lte: endDateObj.getTime(),
         },
-        "data.item.artists.0.id": { $exists: true }
       },
     },
     {
       $group: {
         _id: attributeField,
-        trackAttribute: { $addToSet: displayField },
+        name: { $addToSet: displayField },
         count: { $sum: 1 },
       },
     },
     { $sort: { count: -1 } },
     { $limit: 5 },
+    {$lookup: {
+        from: "tracksBeta",
+        let: { id: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              listenTime: {
+                $gte: startDateObj.getTime(),
+                $lte: endDateObj.getTime(),
+              },
+              $expr: { $eq: [attributeField, '$$id'] },
+            },
+          },
+          {
+            $project: {
+              listenTime: 1,
+              listens: 1,
+            },
+          },
+        ],
+        as: 'entries',
+      },
+    },
   ];
   try {
     return await collection.aggregate(pipeline).toArray();

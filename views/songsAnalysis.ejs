@@ -1,76 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href= "/public/assets/stylesSongs.css" rel="stylesheet" type="text/css" />
+    <link href="/public/assets/stylesSongs.css" rel="stylesheet" type="text/css" />
     <link rel="icon" href="/public/favicon.ico"> <!--https://icons8.com/icon/qhTRpW6HOKIT/lobster"-->
 
     <title>Songs!</title>
 </head>
+
 <body>
     <h4 class="header-title">Michael Krah</h4>
 
     <nav class="nav">
-        <a href="/"  id="nav-item"> Home </a>
+        <a href="/" id="nav-item"> Home </a>
         <a href="/about" id="nav-item"> About </a>
         <a href="/resume" id="nav-item"> Resume </a>
-        <a href="/contact" id="nav-item" > Contact </a>
+        <a href="/contact" id="nav-item"> Contact </a>
         <a href="/songs" id="songs-header"> Songs </a>
     </nav>
-   
+
 
     <main>
         Songs!!
+
+
+
+
         <div id="date-range-selector">
             <h3>Select Date Range:</h3>
             <form id="date-range-form">
-                <label>
-                    <input type="radio" name="dateRange" value="day" > D
-                </label>
-                <label>
-                    <input type="radio" name="dateRange" value="week" checked> W
-                </label>
-                <label>
-                    <input type="radio" name="dateRange" value="month"> M
-                </label>
-                <label>
-                    <input type="radio" name="dateRange" value="sixMonth"> 6 M
-                </label>
-                <label>
-                    <input type="radio" name="dateRange" value="year">  Y
-                </label>
-                
+                <div id="date-range-custom">
+                    <label for="startDate">Start Date:</label>
+                    <input type="date" value="<%= startDate %>" id="startDate" name="dateRangeCustom">
+                    <label for="endDate">End Date:</label>
+                    <input type="date" value="<%= endDate %>" id="endDate" name="dateRangeCustom">
+                </div>
+                <br>
+
+                <div id="date-range-set">
+                    <label>
+                        <input type="radio" name="dateRangeSet" value="day"> D
+                    </label>
+                    <label>
+                        <input type="radio" name="dateRangeSet" value="week" checked> W
+                    </label>
+                    <label>
+                        <input type="radio" name="dateRangeSet" value="month"> M
+                    </label>
+                    <label>
+                        <input type="radio" name="dateRangeSet" value="sixMonth"> 6M
+                    </label>
+                    <label>
+                        <input type="radio" name="dateRangeSet" value="year"> Y
+                    </label>
+                </div>
+
             </form>
         </div>
 
         <div id="date-range-test">
             <h2>Filtered Songs</h2>
-        <ul>
-            From <%= startDate %> to <%= endDate %>
-        </ul>
-        <ul>
-            Listened for <%= minutesListened %> minutes
-        </ul>
-        <ul>
-        Listened to  <%=  uniqueArtists %> unique artists
-        </ul>
-        <ul>
-        Listened to <%=  uniqueSongs %>  unique songs
-        </ul>
+            <ul>
+                From <%= startDate %> to <%= endDate %>
+            </ul>
+            <ul>
+                Listened for <%= minutesListened %> minutes
+            </ul>
+            <ul>
+                Listened to <%= uniqueArtists %> unique artists
+            </ul>
+            <ul>
+                Listened to <%= uniqueSongs %> unique songs
+            </ul>
+            <h2>Ranking</h2>
+            <ul id="top-tracks">
+                <% topTracks.forEach((element, index)=> { %>
+                    <%= index + 1 %>. <%= element.name %><br>
+                            <% }); %>
+            </ul>
+            <ul id="top-artists">
+                <% topArtists.forEach((element, index)=> { %>
+                    <%= index + 1 %>. <%= element.name %><br>
+                            <% }); %>
+            </ul>
         </div>
 
         <div id="current-song">
             <% if (currentSong) { %>
                 Now Playing: <%= currentSong.name %> by <%= currentSong.artists[0].name %>
-            <% } else { %>
-                No song is currently playing
-            <% } %>
+                        <% } else { %>
+                            No song is currently playing
+                            <% } %>
         </div>
+
+
 
         <div id="chart" class="chart"></div>
 
-</main>
+    </main>
 
     <script>
         const chartDataValues = <%- JSON.stringify(chartDataValues) %>;
@@ -78,9 +107,10 @@
     </script>
     <script src="../public/websocketClient.js"></script>
     <script type="module" src="../public/scripts.js"></script>
-   
+
 
 
 
 </body>
+
 </html>

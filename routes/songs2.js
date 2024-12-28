@@ -1,7 +1,7 @@
 const express = require('express');
-const {  getLastListened, getAnalysisFromRange } = require('../controllers/spotifyController');
-const {handleRedirect} = require('../services/spotifyService')
-const {getListensFromInterval} = require('../services/playbackService')
+const { getLastListened, getAnalysisFromRange } = require('../controllers/spotifyController');
+const { handleRedirect } = require('../services/spotifyService')
+const { getListensFromInterval } = require('../services/playbackService')
 
 const router = express.Router();
 
@@ -12,15 +12,16 @@ router.get('/', async (req, res) => {
             await handleRedirect(req, res);
         }
         else {
-            const endDateObj = new Date(); 
-            const startDateObj = new Date(endDateObj); 
-            startDateObj.setDate(endDateObj.getDate() - 6); 
+            const endDateObj = new Date();
+            const startDateObj = new Date(endDateObj);
+            startDateObj.setDate(endDateObj.getDate() - 6);
             endDateObj.setDate(endDateObj.getDate() + 1);
-            const startDate = startDateObj.toISOString().split('T')[0]; 
-            const endDate = endDateObj.toISOString().split('T')[0];  
+            const startDate = startDateObj.toISOString().split('T')[0];
+            const endDate = endDateObj.toISOString().split('T')[0];
 
             const analysisFromRange = await getAnalysisFromRange(startDate, endDate);
-            
+
+
             res.render('songsAnalysis', analysisFromRange)
         }
     } catch (error) {

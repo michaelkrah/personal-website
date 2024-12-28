@@ -2,7 +2,7 @@
 const { client } = require("../config/dbConfig");
 const axios = require('axios');
 
-const { getAccessToken, setLastListened } = require("../config/spotifyConfig");
+const { getAccessToken, setLastListened, setRequestPlayer } = require("../config/spotifyConfig");
 const { refreshAccessToken } = require("./spotifyService");
 const { handleListen } = require("./trackService");
 const PLAYER = "https://api.spotify.com/v1/me/player";
@@ -52,7 +52,6 @@ async function requestPlaybackState() {
                 const currentTime = new Date();
                 const listen = { ingestionTime: currentTime.getTime(), listenTime: response.data.timestamp, data: response.data };
                 const result = await collectionListens.insertOne(listen);
-
 
 
                 if (result) {
@@ -178,22 +177,35 @@ async function processArchiveTrack(track) {
             return;
         }
         const trackId = track.spotify_track_uri.split("track:")[1];
-        const response = await callApi("GET", `https://api.spotify.com/v1/tracks/${trackId}`);
-        if (response.status === 200) {
-            data = JSON.parse(JSON.stringify(universalTrackData));
-            data.item = response.data;
-            data.timestamp = listenTime;
-            data.progress_ms = track.ms_played;
-            await sleep(2000); // avoid rate limiting spotify api
-        } else if (response.status === 401) {
-            await refreshAccessToken();
-            processArchiveTrack(track);
-        } else if (response.status === 429) {
-            console.log(`RATE LIMIT, after ${count} tracks`);
-            await sleep(3600000) //sleep for an hour hopefully it fixes itself if ever limited
-        } else {
-            console.log("Error in processing track from api at track ", count);
+        try {
+            const response = await callApi("GET", `https://api.spotify.com/v1/tracks/${trackId}`);
+            if (response.status === 200) {
+                data = JSON.parse(JSON.stringify(universalTrackData));
+                data.item = response.data;
+                data.timestamp = listenTime;
+                data.progress_ms = track.ms_played;
+                await sleep(2000); // avoid rate limiting spotify api
+            }
+        } catch (error) {
+            // handle axios errors if the key needs to be refreshed or if the client is rate limited 
+            if (error.response && error.response?.status === 401) {
+                console.log("Needed to refresh")
+                return;
+                await refreshAccessToken();
+                processArchiveTrack(track);
+            } else if (error.response && error.response?.status === 429) {
+                console.log(`RATE LIMIT, after ${count} tracks`);
+                console.error(error)
+                setRequestPlayer(false)
+                await sleep(3600000) //sleep for an hour hopefully it fixes itself if ever limited, more of a soft save for intervention
+                setRequestPlayer(true)
+
+            } else {
+                // if not easily handleable, throw error
+                throw error;
+            }
         }
+
     }
 
     // process the correct number of listens
