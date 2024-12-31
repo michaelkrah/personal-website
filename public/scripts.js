@@ -1,15 +1,16 @@
 import { drawActivityChart } from './d3.js';
 
+let selectedButton = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('date-range-form');
     const chartContainerId = 'chart';
 
+    const buttons = document.getElementById('date-range-top');
 
     if (typeof chartDataValues !== 'undefined') {
         drawActivityChart(chartDataValues, chartDataTime, null, 'chart');
     }
-
 
     form.addEventListener('change', (event) => {
         console.time("Querying calendar");
@@ -17,8 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
             const dateRange = event.target.value;
-            // const currentDate = new Date().toISOString().split('T')[0];
-            const currentDate = "2024-12-03"
+            const currentDate = new Date().toISOString().split('T')[0];
             let startDate = currentDate;
             let endDate = startDate;
 
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setDateRange(true, dateRange, startDate, endDate);
 
         } else if (event.target.name === 'dateRangeCustom') {
-            console.log("dateRangeCustom pressed")
+
             let startDate = document.getElementById('startDate').value
             let endDate = document.getElementById('endDate').value
 
@@ -72,11 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 return response.json();
             })
             .then((data) => {
-                document.getElementById('date-range-test').innerHTML = `
-                    <h2>Filtered Songs</h2>
-                    <ul>
-                        From ${data.startDate} to ${data.endDate} 
-                    </ul>
+
+                chartDataValues = data.chartDataValues;
+                chartDataTime = data.chartDataTime;
+                chartTopTracks = data.chartTopTracks;
+                chartTopArtists = data.chartTopArtists;
+
+
+                document.getElementById('date-range-exact-values').innerHTML = `
                     <ul>
                         Listened for ${data.minutesListened} minutes
                     </ul>
@@ -84,30 +87,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     Listened to ${data.uniqueArtists} unique artists
                     </ul>
                     <ul>
-                    Listened to ${data.uniqueSongs} unique songs
+                    Listened to ${data.uniqueSongs} unique tracks
                     </ul>
-                    <h2>Ranking</h2>
-                    <ul id="top-tracks"></ul>
-                    <ul id="top-artists"></ul>
                 `;
 
-                const topTracksElement = document.getElementById('top-tracks');
-                data.topTracks.forEach((element, index) => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `${index + 1}. ${element.name}`;
-                    topTracksElement.appendChild(listItem);
-                });
 
-                const topArtistsElement = document.getElementById('top-artists');
-                data.topArtists.forEach((element, index) => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `${index + 1}. ${element.name}`;
-                    topArtistsElement.appendChild(listItem);
+                let topTracksElement = "";
+                data.topTracks.forEach((element, index) => {
+                    topTracksElement += `${index + 1}. ${element.name} <br>`;
                 });
+                document.getElementById('top-tracks').innerHTML = `
+                    ${topTracksElement}
+                `;
+
+                let topArtistsElement = "";
+                data.topArtists.forEach((element, index) => {
+                    topArtistsElement += `${index + 1}. ${element.name} <br>`;
+                });
+                document.getElementById('top-artists').innerHTML = `
+                    ${topArtistsElement}
+                `;
 
                 clearChart(chartContainerId); // Clear the existing chart
 
-                drawActivityChart(data.chartDataValues, data.chartDataTime, data.chartTopArtists, chartContainerId); // Draw the new chart
+                drawActivityChart(data.chartDataValues, data.chartDataTime, null, chartContainerId); // Draw the new chart
+
 
                 const checkedButton = document.querySelector('input[name="dateRangeSet"]:checked');
                 const selectedValue = checkedButton ? checkedButton.value : null;
@@ -118,7 +122,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('There was a problem with the fetch operation:', error);
             });
     })
+
+    buttons.addEventListener('click', (event) => {
+        if (event.target.tagName === 'BUTTON' || event.target.closest('button')) {
+            toggleButton(event.target.id);
+
+
+            let chartOptionalData = { "top-tracks": chartTopTracks, "top-artists": chartTopArtists, null: null };
+            clearChart(chartContainerId);
+            drawActivityChart(chartDataValues, chartDataTime, chartOptionalData[selectedButton], chartContainerId);
+
+        }
+    })
+
 });
+
+function toggleButton(button) {
+    if (selectedButton === button) {
+        selectedButton = null;
+    } else {
+        selectedButton = button;
+    }
+
+}
 
 function setDateRange(isLoading, dateRange, startDate, endDate) {
     /* Function to modify the date range selector depending on specific inputs */
@@ -135,33 +161,39 @@ function setDateRange(isLoading, dateRange, startDate, endDate) {
     }
 
     document.getElementById('date-range-custom').innerHTML = `
-        <label for="startDate">Start Date:</label>
+        <label for="startDate">From </label>
         <input type="date" value="${startDate}" id="startDate" name="dateRangeCustom" ${disabled["custom"]}>
-        <label for="endDate">End Date:</label>
+        <label for="endDate">to</label>
         <input type="date" value="${endDate}" id="endDate" name="dateRangeCustom" ${disabled["custom"]}>
     `;
     document.getElementById('date-range-set').innerHTML = `
-        <label>
-            <input type="radio" name="dateRangeSet" value="day" ${checked["day"]} ${disabled["day"]}> D
-        </label>
-        <label>
-            <input type="radio" name="dateRangeSet" value="week" ${checked["week"]} ${disabled["week"]}> W
-        </label>
-        <label>
-            <input type="radio" name="dateRangeSet" value="month" ${checked["month"]} ${disabled["month"]}> M
-        </label>
-        <label>
-            <input type="radio" name="dateRangeSet" value="sixMonth" ${checked["sixMonth"]} ${disabled["sixMonth"]}> 6M
-        </label>
-        <label>
-            <input type="radio" name="dateRangeSet" value="year" ${checked["year"]} ${disabled["year"]}> Y
-        </label>
+        
+        <input type="radio" name="dateRangeSet" id="day" value="day" ${checked["day"]} ${disabled["day"]}>
+        <label for="day">D</label>
+
+        <input type="radio" name="dateRangeSet" id="week" value="week" ${checked["week"]} ${disabled["week"]}>
+        <label for="week"> W </label>
+
+        <input type="radio" name="dateRangeSet" id="month" value="month" ${checked["month"]} ${disabled["month"]}>
+        <label for="month">M</label>
+        
+        <input type="radio" name="dateRangeSet" id="sixMonth" value="sixMonth" ${checked["sixMonth"]} ${disabled["sixMonth"]}> 
+        <label for="sixMonth">6M</label>
+        
+        
+        <input type="radio" name="dateRangeSet" id="year" value="year" ${checked["year"]} ${disabled["year"]}>
+        <label for="year">Y</label>
     `;
+
+    document.getElementById("top-tracks-button").disabled = isLoading;
+    document.getElementById("top-artists-button").disabled = isLoading;
+
+
 }
 
 function clearChart(containerId) {
     const container = document.getElementById(containerId);
     if (container) {
-        container.innerHTML = ''; // Remove all child elements
+        container.innerHTML = '';
     }
 }
