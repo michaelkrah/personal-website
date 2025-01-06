@@ -26,10 +26,10 @@
     </div>
 
     <main>
-        <div class="flex-container">
+        <div class="flex-container-main">
 
             <div id="left-container">
-                <div id="ui-container-left">
+                <div id="ui-container-left" class="ui-container">
                     <div id="date-range-selector">
                         <form id="date-range-form">
                             <h4>Listening history</h4>
@@ -103,32 +103,116 @@
                     <div class="flex-container">
 
                         <div id="date-range-exact-values">
-                            <ul>
-                                Listened for <%= minutesListened %> minutes
-                            </ul>
-                            <ul>
-                                Listened to <%= uniqueArtists %> unique artists
-                            </ul>
-                            <ul>
-                                Listened to <%= uniqueSongs %> unique tracks
-                            </ul>
+                            <div>
+                                From <green-text><%= startDate %></green-text> to <green-text><%= endDate %></green-text>, <br>
+                                I listened to <green-text>
+                                    <%= uniqueSongs %> unique tracks</green-text> <br> on <green-text>
+                                    <%= uniqueAlbums %> albums</green-text>, <br>
+                                     from a total of <green-text>
+                                    <%= uniqueArtists %> artists</green-text>. <br>
+                            </div>
+                            <div>
+                                This represents <green-text><%= minutesListened %> minutes</green-text> <br> and <green-text>
+                                <%= totalTracks %> total tracks</green-text>.
+                            </div>
                         </div>
 
                         <div id="date-range-top">
-                            <button id="top-tracks-button">
-                                <div id="top-tracks">
-                                    <% topTracks.forEach((element, index)=> { %>
-                                        <%= index + 1 %>. <%= element.name %><br>
+                            <div>
+                                <h4>Most listened to</h4>
+                            </div>
+                            <div class="flex-container-ranking">
+                                <div class="ranking-div">
+
+                                    <p>Artists:</p>
+
+                                    <button id="top-artists-button" class="ranking-button">
+                                        <div id="top-artists" class="top-list" x>
+                                            <% topArtists.forEach((element, index)=> { %>
+                                                <div class="ranking-item">
+                                                    <div class="ranking-number"
+                                                        style="--ranking-color: <%= colorList[index] %>;">
+                                                        <%= index + 1 %>.&nbsp;
+                                                    </div>
+                                                    <div class="ranking-name"
+                                                    style="--ranking-color: <%= colorList[index] %>;">
+
+                                                    <% if (element.name[0][0].length> 30) { %>
+
+                                                            <%= element.name[0][0].substring(0, 30)%>...
+                                                        
+                                                        <% } else { %>
+                         
+                                                                <%= element.name %>
+                                                            <% } %>
+                                                        </div>
+                                                </div>
                                                 <% }); %>
+                                        </div>
+                                    </button>
                                 </div>
-                            </button>
-                            <button id="top-artists-button">
-                                <div id="top-artists">
-                                    <% topArtists.forEach((element, index)=> { %>
-                                        <%= index + 1 %>. <%= element.name %><br>
+                                <div class="ranking-div">
+                                    <p>Albums:</p>
+
+                                    <button id="top-albums-button" class="ranking-button">
+                                        <div id="top-albums" class="top-list">
+                                            <% topAlbums.forEach((element, index)=> { %>
+                                                <div class="ranking-item">
+                                                    <div class="ranking-number"
+                                                        style="--ranking-color: <%= colorList[index] %>;">
+                                                        <%= index + 1 %>.&nbsp;
+                                                    </div>
+                                                    <div class="ranking-name"
+                                                    style="--ranking-color: <%= colorList[index] %>;">
+                                                    <div class="ranking-title">
+                                                    <% if (element.name[0][0].length> 30) { %>
+                                                                <%= element.name[0][0].substring(0, 30)%>...
+                                                    <% } else { %>
+                                                                <%= element.name %> 
+                                                    <% } %>
+                                                    </div>
+                                                    <div class="ranking-artist">
+                                                        <%= element.artist[0][0] %>
+                                                    </div>
+                                                    </div>
+                                                </div>
                                                 <% }); %>
+
+                                        </div>
+                                    </button>
                                 </div>
-                            </button>
+                                <div class="ranking-div">
+                                    <p>Tracks:</p>
+
+                                    <button id="top-tracks-button" class="ranking-button">
+                                        <div id="top-tracks" class="top-list">
+                                            <% topTracks.forEach((element, index)=> { %>
+                                                <div class="ranking-item">
+                                                    <div class="ranking-number"
+                                                        style="--ranking-color: <%= colorList[index] %>;">
+                                                        <%= index + 1 %>.&nbsp;
+                                                    </div>
+                                                    <div class="ranking-name"
+                                                    style="--ranking-color: <%= colorList[index] %>;">
+                                                    <div class="ranking-title">
+                                                    <% if (element.name[0][0].length> 30) { %>
+                                                                <%= element.name[0][0].substring(0, 30)%>...
+                                                    <% } else { %>
+                                                                <%= element.name %> 
+                                                    <% } %>
+                                                    </div>
+                                                    <div class="ranking-artist">
+                                                        <%= element.artist[0][0] %>
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                                <% }); %>
+                                        </div>
+                                    </button>
+                                </div>
+
+
+                            </div>
                         </div>
 
                     </div>
@@ -148,13 +232,11 @@
         let chartDataTime = <%- JSON.stringify(chartDataTime) %>;
         let chartTopTracks = <%- JSON.stringify(chartTopTracks) %>;
         let chartTopArtists = <%- JSON.stringify(chartTopArtists) %>;
+        let chartTopAlbums = <%- JSON.stringify(chartTopAlbums) %>;
+
     </script>
     <script src="../public/websocketClient.js"></script>
     <script type="module" src="../public/scripts.js"></script>
 
-
-
-
 </body>
-
 </html>

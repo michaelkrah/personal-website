@@ -10,9 +10,14 @@ function drawActivityChart(data, chartDataTime, chartOptionalData, containerId) 
     const filteredData = data.filter(d => chartDataTime.includes(d.day));
     const backgroundData = chartDataTime.map(day => ({ day }));
 
+    const container = d3.select(`#${containerId}`);
+    const containerWidth = container.node().getBoundingClientRect().width;
+    const containerHeight = container.node().getBoundingClientRect().height;
+
+
     const margin = { top: 20, right: 30, bottom: 40, left: 50 };
-    const width = 800 - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
+    const width = containerWidth - margin.left - margin.right;
+    const height = containerHeight - margin.top - margin.bottom;
 
     let dataColor = '#1db954';
     if (chartOptionalData) {
@@ -23,8 +28,9 @@ function drawActivityChart(data, chartDataTime, chartOptionalData, containerId) 
     // Days of the week
     const days = chartDataTime
     const tickValues = days.filter((_, index) => index % Math.ceil(days.length / 7) === 0);
-
-    const entryValues = { 1: "#DAA520", 2: "#800020", 3: "#D2B48C", 4: "#87CEFA", 5: "#6B8E23" };
+    //#DA2020
+    //#C1B691
+    const entryValues = { 1: "#DAA520", 2: "#87CEFA", 3: "#C71010", 4: "#EA87FA", 5: "#6B8E23" };
 
     // Create scales
     const xScale = d3
@@ -51,9 +57,14 @@ function drawActivityChart(data, chartDataTime, chartOptionalData, containerId) 
     svg
         .append('g')
         .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(xScale).tickValues(tickValues));
+        .call(d3.axisBottom(xScale).tickValues(tickValues))
+        .style('font-size', '0.6em');
 
-    svg.append('g').call(d3.axisLeft(yScale));
+    svg.append('g')
+        .call(d3.axisLeft(yScale))
+        .style('font-size', '0.6em');
+    // .call(g => g.select('.domain').remove());
+
 
     svg
         .selectAll('.background')
@@ -65,7 +76,7 @@ function drawActivityChart(data, chartDataTime, chartOptionalData, containerId) 
         .attr('y', 0)
         .attr('height', height)
         .attr('width', xScale.bandwidth())
-        .style('fill', '#292929');
+        .style('fill', '#242424');
 
     svg
         .selectAll('.bar')

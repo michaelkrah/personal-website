@@ -77,6 +77,7 @@ async function getTracksFromInterval(startDate, endDate) {
         "data.item.name": 1,
         "data.item.id": 1,
         "data.item.artists.id": 1,
+        "data.item.album.id": 1,
       }
     }
     ).toArray();
@@ -94,11 +95,13 @@ async function getTopFromInterval(startDate, endDate, attribute) {
   const attributeFields = {
     tracks: '$data.item.id',
     artists: '$data.item.artists.id', // Accesses the first artist in the array
+    albums: '$data.item.album.id'
   };
 
   const displayFields = {
     tracks: '$data.item.name',
     artists: '$data.item.artists.name',
+    albums: '$data.item.album.name'
   };
   const attributeField = attributeFields[attribute];
   const displayField = displayFields[attribute];
@@ -120,12 +123,15 @@ async function getTopFromInterval(startDate, endDate, attribute) {
       $group: {
         _id: attributeField,
         name: { $addToSet: displayField },
+        artist: { $addToSet: '$data.item.artists.name' },
+        artistId: { $addToSet: '$data.item.artists.id' },
         count: { $sum: 1 },
       },
     },
     { $sort: { count: -1 } },
     { $limit: 5 },
-    {$lookup: {
+    {
+      $lookup: {
         from: "tracksBeta",
         let: { id: '$_id' },
         pipeline: [

@@ -1,3 +1,12 @@
+:root {
+  --background-color: black;
+  --main-color: #1a1a1a;
+  --highlight-1: #242424;
+  --button-color: #424242;
+  --button-selected: #777;
+}
+
+
 @font-face {
   font-family: Lato;
   src: url(Lato-Light.ttf);
@@ -19,7 +28,7 @@ body {
 
 
 body {
-  background: black;
+  background: var(--background-color);
   color: white;
   font-family: sans-serif;
 }
@@ -62,7 +71,7 @@ body {
   margin-left: 1%;
   margin-right: 1%;
   margin-top: 1%;
-  background: #1a1a1a;
+  background: var(--main-color);
   border-radius: 10px;
 }
 
@@ -162,24 +171,20 @@ main {
   flex-grow: 1;
 }
 
-.ui-container {
-  height: 95%;
-  width: 100%;
-  border-radius: 10px;
-  background: #1a1a1a;
-  padding: 10px;
+.flex-container-main {
+  display: flex;
+  flex-grow: 1;
 }
 
-#ui-container-left {
+.ui-container {
   display: flex;
   flex-direction: column;
   height: 95%;
   width: 100%;
   border-radius: 10px;
-  background: #1a1a1a;
+  background: var(--main-color);
   padding: 10px;
 }
-
 
 #left-container {
   display: flex;
@@ -201,6 +206,11 @@ main {
   width: 80%;
   justify-content: center;
   align-items: center;
+  min-width: 500px;
+}
+
+#date-range-selector {
+  order: 1;
 }
 
 #date-range-custom {
@@ -223,7 +233,7 @@ main {
 
 #startDate,
 #endDate {
-  background-color: #424242;
+  background-color: var(--button-color);
   border: none;
   color: #ffffff;
   font-size: 1em;
@@ -240,7 +250,7 @@ main {
 
 #startDate:hover,
 #endDate:hover {
-  background-color: #999;
+  background-color: var(--button-selected);
 }
 
 #date-range-set {
@@ -252,7 +262,7 @@ main {
 
 #date-range-set label {
   padding: 3px 5px;
-  background-color: #424242;
+  background-color: var(--button-color);
   border-radius: 5px;
   cursor: pointer;
   color: white;
@@ -263,7 +273,7 @@ main {
 }
 
 #date-range-set label:hover {
-  background-color: #999;
+  background-color: var(--button-selected);
 }
 
 #date-range-set input[type="radio"] {
@@ -271,20 +281,21 @@ main {
 }
 
 #date-range-set input[type="radio"]:checked+label {
-  background-color: #999;
+  background-color: var(--button-selected);
   color: #fff;
 }
 
 #current-song {
   margin-top: auto;
+  order: 2;
 }
 
 #song-image {
-  width: 92%;
+  width: 98%;
   margin-top: 10%;
-  margin-left: 2%;
+  margin-bottom: 2%;
+  margin-left: 1%;
   height: auto;
-  max-height: 92%;
   border-radius: 10px;
 }
 
@@ -304,6 +315,130 @@ main {
 
 #artists-display:hover {
   text-decoration: underline;
+}
+
+#date-range-exact-values {
+  display: flex;
+  flex-direction: column;
+  gap: 10%;
+  padding-left: 2%;
+  justify-content: center;
+  text-align: left;
+  width: 40%;
+}
+
+#date-range-exact-values green-text {
+  color: #0ed560;
+  margin: 0;
+}
+
+#chart {
+  margin-top: auto;
+  height: 65%;
+  width: 100%;
+  min-height: 300px;
+  min-width: 500px;
+}
+
+#date-range-top {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: center;
+}
+
+#date-range-top h4 {
+  text-align: center;
+  margin-bottom: 1%;
+}
+
+#date-range-top p {
+  margin-bottom: 1%;
+}
+
+.flex-container-ranking {
+  display: flex;
+  flex-grow: 1;
+  justify-content: center;
+
+}
+
+.ranking-div {
+  margin-right: 1%;
+  max-height: 100%;
+  text-align: center;
+  justify-content: center
+}
+
+
+.ranking-button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding-left: 1%;
+  padding-top: 3%;
+  padding-bottom: 3%;
+  border-radius: 10px;
+  margin-right: 30px; 
+  height: 90%;
+  cursor: pointer;
+  color: white;
+  text-align: left;
+  vertical-align: text-top;
+  background-color: var(--highlight-1);
+  border: none;
+  font-size: 0.8em;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.top-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.ranking-item {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 1%;
+  width: 100%;
+}
+
+.ranking-name {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  text-align: left;
+}
+
+.ranking-artist {
+  font-size: 0.8em;
+  color: #909090;
+}
+
+.ranking-number {
+  transition: color 0.1s ease;
+}
+
+.ranking-name {
+  transition: color 0.1s ease;
+}
+
+.ranking-button.selected .ranking-number {
+  color: var(--ranking-color, white);
+}
+
+.ranking-button.selected .ranking-name {
+  color: var(--ranking-color, white);
+}
+
+
+.ranking-button.selected {
+  background-color: #444444;
+}
+
+.ranking-button:hover {
+  background-color: #444444;
 }
 
 @media(max-width:768px) {
@@ -340,10 +475,15 @@ main {
     margin-bottom: 1em;
   }
 
-  .main-flex {
-    display: flex;
-    gap: 2%;
-    justify-content: center;
-    flex-direction: column;
+  #current-song {
+    margin-top: 2%;
+    order: 1;
   }
+
+  #date-range-selector {
+    order: 2;
+  }
+
+
+
 }

@@ -1,6 +1,8 @@
 import { drawActivityChart } from './d3.js';
 
 let selectedButton = null;
+let chartOptionalData = { "top-tracks": chartTopTracks, "top-artists": chartTopArtists, "top-albums": chartTopAlbums, null: null };
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('date-range-form');
@@ -11,6 +13,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof chartDataValues !== 'undefined') {
         drawActivityChart(chartDataValues, chartDataTime, null, 'chart');
     }
+
+    window.addEventListener('resize', () => {
+        clearChart(chartContainerId);
+        drawActivityChart(
+            chartDataValues,
+            chartDataTime,
+            chartOptionalData[selectedButton],
+            chartContainerId
+        );
+    });
+
 
     form.addEventListener('change', (event) => {
         console.time("Querying calendar");
@@ -77,24 +90,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 chartDataTime = data.chartDataTime;
                 chartTopTracks = data.chartTopTracks;
                 chartTopArtists = data.chartTopArtists;
+                chartTopAlbums = data.chartTopAlbums;
+                chartOptionalData = { "top-tracks": chartTopTracks, "top-artists": chartTopArtists, "top-albums": chartTopAlbums, null: null };
 
 
                 document.getElementById('date-range-exact-values').innerHTML = `
-                    <ul>
-                        Listened for ${data.minutesListened} minutes
-                    </ul>
-                    <ul>
-                    Listened to ${data.uniqueArtists} unique artists
-                    </ul>
-                    <ul>
-                    Listened to ${data.uniqueSongs} unique tracks
-                    </ul>
+                <div>
+                    From <green-text>${data.startDate}</green-text> to <green-text>${data.endDate}</green-text>, <br>
+                        I listened to <green-text> ${data.uniqueSongs} unique tracks </green-text> <br> on <green-text> ${data.uniqueAlbums} albums</green-text>, <br> from a total of <green-text> ${data.uniqueArtists}  artists</green-text>. <br>
+                </div>
+                <div>
+                    This represents <green-text>${data.minutesListened} minutes </green-text> <br> and <green-text>${data.totalTracks} total tracks</green-text>.
+                </div>
+
+
                 `;
 
 
                 let topTracksElement = "";
                 data.topTracks.forEach((element, index) => {
-                    topTracksElement += `${index + 1}. ${element.name} <br>`;
+                    topTracksElement += '<div class="ranking-item">'
+                    topTracksElement += `
+                    <div class="ranking-number" 
+                        style="--ranking-color: ${data.colorList[index]}">
+                        ${index + 1}.&nbsp;
+                    </div>
+                    <div class="ranking-name" style="--ranking-color: ${data.colorList[index]}">
+                    <div class="ranking-title">
+                    `;
+                    if (element.name[0].length > 30) {
+                        topTracksElement += `${element.name[0].substring(0, 30)}...`;
+                    } else {
+                        topTracksElement += `${element.name}`;
+                    }
+                    topTracksElement += `
+                    </div>
+                    <div class="ranking-artist">
+                            ${element.artist[0][0]}
+                        </div>
+                    </div>
+                    </div>
+                    `;
                 });
                 document.getElementById('top-tracks').innerHTML = `
                     ${topTracksElement}
@@ -102,10 +138,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 let topArtistsElement = "";
                 data.topArtists.forEach((element, index) => {
-                    topArtistsElement += `${index + 1}. ${element.name} <br>`;
+                    topArtistsElement += '<div class="ranking-item">'
+                    topArtistsElement += `
+                    <div class="ranking-number" 
+                        style="--ranking-color: ${data.colorList[index]}">
+                        ${index + 1}.&nbsp;
+                    </div>
+                    <div class="ranking-name" style="--ranking-color: ${data.colorList[index]}">
+                    `;
+                    if (element.name[0].length > 30) {
+                        topArtistsElement += `${element.name[0].substring(0, 30)}...`;
+                    } else {
+                        topArtistsElement += `${element.name}`;
+                    }
+                    topArtistsElement += `
+                    </div>
+                    </div>
+                    `;
                 });
                 document.getElementById('top-artists').innerHTML = `
                     ${topArtistsElement}
+                `;
+
+                let topAlbumsElement = "";
+                data.topAlbums.forEach((element, index) => {
+                    topAlbumsElement += '<div class="ranking-item">'
+                    topAlbumsElement += `
+                    <div class="ranking-number" 
+                        style="--ranking-color: ${data.colorList[index]}">
+                        ${index + 1}.&nbsp;
+                    </div>
+                    <div class="ranking-name" style="--ranking-color: ${data.colorList[index]}">
+                    <div class="ranking-title">
+                    `;
+                    if (element.name[0].length > 30) {
+                        topAlbumsElement += `${element.name[0].substring(0, 30)}...`;
+                    } else {
+                        topAlbumsElement += `${element.name}`;
+                    }
+                    topAlbumsElement += `
+                    </div>
+                    <div class="ranking-artist">
+                            ${element.artist[0][0]}
+                        </div>
+                    </div>
+                    </div>
+                    `;
+                });
+                document.getElementById('top-albums').innerHTML = `
+                    ${topAlbumsElement}
                 `;
 
                 clearChart(chartContainerId); // Clear the existing chart
@@ -116,6 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const checkedButton = document.querySelector('input[name="dateRangeSet"]:checked');
                 const selectedValue = checkedButton ? checkedButton.value : null;
                 setDateRange(false, selectedValue, data.startDate, data.endDate)
+                toggleButton(null);
                 console.timeEnd("Querying calendar");
             })
             .catch((error) => {
@@ -125,10 +207,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     buttons.addEventListener('click', (event) => {
         if (event.target.tagName === 'BUTTON' || event.target.closest('button')) {
-            toggleButton(event.target.id);
 
+            const buttonElement = event.target.closest('button');
+            const normalizedId = buttonElement.id.replace('-button', '');
 
-            let chartOptionalData = { "top-tracks": chartTopTracks, "top-artists": chartTopArtists, null: null };
+            toggleButton(normalizedId);
+
             clearChart(chartContainerId);
             drawActivityChart(chartDataValues, chartDataTime, chartOptionalData[selectedButton], chartContainerId);
 
@@ -138,10 +222,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function toggleButton(button) {
+    const previousButton = document.getElementById(`${selectedButton}-button`);
+    if (previousButton) {
+        previousButton.classList.remove('selected');
+    }
+
     if (selectedButton === button) {
         selectedButton = null;
     } else {
         selectedButton = button;
+        const currentButton = document.getElementById(`${button}-button`);
+        if (currentButton) {
+            currentButton.classList.add('selected');
+        }
+
     }
 
 }
@@ -187,6 +281,7 @@ function setDateRange(isLoading, dateRange, startDate, endDate) {
 
     document.getElementById("top-tracks-button").disabled = isLoading;
     document.getElementById("top-artists-button").disabled = isLoading;
+    document.getElementById("top-albums-button").disabled = isLoading;
 
 
 }

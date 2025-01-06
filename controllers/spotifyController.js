@@ -11,21 +11,17 @@ async function getAnalysisFromRange(startDate, endDate) {
 
   const tracks = await getTracksFromInterval(startDate, endDate);
 
-  console.time("Querying top results")
   // CHANGE, ok for now as a lazy proof of concept, optimize in the future
   // can try just querying separately, might be faster 
   // alternatively can do this as an async call, send data when it's received, might be ideal but would require sig restructing 
 
   const topTracks = await getTopFromInterval(startDate, endDate, "tracks");
   const topArtists = await getTopFromInterval(startDate, endDate, "artists");
-  console.timeEnd("Querying top results")
-
-
-  // console.log("topTracks", topTracks);
-  // console.log("topArtists", topArtists);
+  const topAlbums = await getTopFromInterval(startDate, endDate, "albums")
 
   const uniqueTracks = new Set(tracks.map(track => track.data.item.id));
   const uniqueArtists = new Set(tracks.map(track => track.data.item.artists[0]?.id).filter(Boolean));
+  const uniqueAlbums = new Set(tracks.map(track => track.data.item.album.id));
 
   const currentSong = getLastListened()?.data?.item || null
 
@@ -81,20 +77,25 @@ async function getAnalysisFromRange(startDate, endDate) {
 
   const chartTopTracks = chartDataConversion(topTracks);
   const chartTopArtists = chartDataConversion(topArtists);
-
+  const chartTopAlbums = chartDataConversion(topAlbums);
   return {
     startDate: startDate,
     endDate: endDate,
     currentSong: currentSong,
     topTracks: topTracks,
     topArtists: topArtists,
+    topAlbums: topAlbums,
+    totalTracks: tracks.length,
     uniqueSongs: uniqueTracks.size,
     uniqueArtists: uniqueArtists.size,
+    uniqueAlbums: uniqueAlbums.size,
     minutesListened: Math.ceil(minutesListened * 0.5),
     chartDataTime: datesListString,
     chartDataValues: chartData,
     chartTopTracks: chartTopTracks,
     chartTopArtists: chartTopArtists,
+    chartTopAlbums: chartTopAlbums,
+    colorList: ["#DAA520", "#87CEFA", "#C71010", "#EA87FA", "#6B8E23"]
   }
 };
 
