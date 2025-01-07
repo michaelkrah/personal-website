@@ -32,6 +32,11 @@ function drawActivityChart(data, chartDataTime, chartOptionalData, containerId) 
     //#C1B691
     const entryValues = { 1: "#DAA520", 2: "#87CEFA", 3: "#C71010", 4: "#EA87FA", 5: "#6B8E23" };
 
+    const yAxisLabels = [
+        '1 am', '3 am', '5 am', '7 am', '9 am', '11 am',
+        '1 pm', '3 pm', '5 pm', '7 pm', '9 pm', '11 pm'
+    ];    
+
     // Create scales
     const xScale = d3
         .scaleBand()
@@ -60,10 +65,13 @@ function drawActivityChart(data, chartDataTime, chartOptionalData, containerId) 
         .call(d3.axisBottom(xScale).tickValues(tickValues))
         .style('font-size', '0.6em');
 
+    const yAxis = d3.axisLeft(yScale)
+        .tickValues(d3.range(1, 24, 2)) // Generate ticks for odd hours: 1, 3, 5, ..., 23
+        .tickFormat(d => yAxisLabels[(d - 1) / 2]); 
+       
     svg.append('g')
-        .call(d3.axisLeft(yScale))
+        .call(yAxis)
         .style('font-size', '0.6em');
-    // .call(g => g.select('.domain').remove());
 
 
     svg
