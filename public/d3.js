@@ -15,15 +15,23 @@ function drawActivityChart(data, chartDataTime, chartOptionalData, containerId) 
     const containerHeight = container.node().getBoundingClientRect().height;
 
 
+
     const margin = { top: 20, right: 30, bottom: 40, left: 50 };
     const width = containerWidth - margin.left - margin.right;
     const height = containerHeight - margin.top - margin.bottom;
+
+    let fontSizeLabels = '0.6em'
+
+    if (containerWidth < 500) {
+        fontSizeLabels = '0.35em'
+    }
 
     let dataColor = '#1db954';
     if (chartOptionalData) {
         dataColor = '#444444';
         chartOptionalData = chartOptionalData.filter(d => chartDataTime.includes(d.day));
     }
+
 
     // Days of the week
     const days = chartDataTime
@@ -35,7 +43,7 @@ function drawActivityChart(data, chartDataTime, chartOptionalData, containerId) 
     const yAxisLabels = [
         '1 am', '3 am', '5 am', '7 am', '9 am', '11 am',
         '1 pm', '3 pm', '5 pm', '7 pm', '9 pm', '11 pm'
-    ];    
+    ];
 
     // Create scales
     const xScale = d3
@@ -63,15 +71,15 @@ function drawActivityChart(data, chartDataTime, chartOptionalData, containerId) 
         .append('g')
         .attr('transform', `translate(0,${height})`)
         .call(d3.axisBottom(xScale).tickValues(tickValues))
-        .style('font-size', '0.6em');
+        .style('font-size', fontSizeLabels);
 
     const yAxis = d3.axisLeft(yScale)
         .tickValues(d3.range(1, 24, 2)) // Generate ticks for odd hours: 1, 3, 5, ..., 23
-        .tickFormat(d => yAxisLabels[(d - 1) / 2]); 
-       
+        .tickFormat(d => yAxisLabels[(d - 1) / 2]);
+
     svg.append('g')
         .call(yAxis)
-        .style('font-size', '0.6em');
+        .style('font-size', fontSizeLabels);
 
 
     svg
