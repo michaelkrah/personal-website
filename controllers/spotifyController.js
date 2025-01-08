@@ -4,7 +4,6 @@ const { getTracksFromInterval, getTopFromInterval } = require('../services/track
 const { getListensFromInterval } = require('../services/playbackService');
 
 const { client } = require('../config/dbConfig');
-const Track = require('../models/track');
 
 
 async function getAnalysisFromRange(startDate, endDate) {

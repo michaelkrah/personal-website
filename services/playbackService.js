@@ -8,21 +8,22 @@ const { handleListen } = require("./trackService");
 const PLAYER = "https://api.spotify.com/v1/me/player";
 
 const db = client.db();
-const collectionListens = db.collection('listensBeta');
-const collectionTracks = db.collection('tracksBeta');
+const collectionListens = db.collection('listens');
+const collectionTracks = db.collection('tracks');
+const collectionTracksUnique = db.collection('tracksUnique');
 const collectionTracks2 = db.collection('tracksPreBeta');
 const collectionListens2 = db.collection('listensPreBeta');
 
 universalTrackData = {
     "device": {
-        "id": "325f13c1132a9c7166a85b7f4933717c16452a0f",
+        "id": "",
         "is_active": true, "is_private_session": false, "is_restricted": false,
-        "name": "DESKTOP-GF7RQTK", "supports_volume": true, "type": "Computer", "volume_percent": 0
+        "name": "", "supports_volume": true, "type": "", "volume_percent": 100
     },
     "shuffle_state": true, "smart_shuffle": false, "repeat_state": "off", "timestamp": 0,
     "context": {
         "external_urls": { "spotify": "https://open.spotify.com/collection/tracks" },
-        "href": "https://api.spotify.com/v1/me/tracks", "type": "collection", "uri": "spotify:user:michaelkrah:collection"
+        "href": "https://api.spotify.com/v1/me/tracks", "type": "collection", "uri": ""
     },
     "progress_ms": 0,
     "item": {},
@@ -118,9 +119,6 @@ async function processArchiveFile(jsonData) {
     // Count the number of entries in the JSON array
     const totalEntries = jsonData.length;
     count = 0;
-    // const result = await collectionTracks.deleteMany({});
-    // const result2 = await collectionListens.deleteMany({});
-
 
     for (const entry of jsonData) {
         try {
@@ -160,8 +158,10 @@ async function processArchiveTrack(track) {
     // call api to get song data correct format if the song has not already been stored
     let data = null;
     let calculatedValues = {};
-    let storedTrack = await collectionTracks.find({ "data.item.uri": track.spotify_track_uri }).toArray();
+    let storedTrack = await collectionTracksUnique.find({ "data.item.uri": track.spotify_track_uri }).toArray();
     console.log("Processing track", count)
+
+
 
     if (storedTrack.length > 0) {
         // this track has been seen before, no need to call spotify api and can just process with available info
@@ -184,13 +184,13 @@ async function processArchiveTrack(track) {
                 data.item = response.data;
                 data.timestamp = listenTime;
                 data.progress_ms = track.ms_played;
+                collectionTracksUnique.insertOne({data: data}); // collection meant to store each unique track seen
                 await sleep(2000); // avoid rate limiting spotify api
             }
         } catch (error) {
             // handle axios errors if the key needs to be refreshed or if the client is rate limited 
             if (error.response && error.response?.status === 401) {
                 console.log("Needed to refresh")
-                return;
                 await refreshAccessToken();
                 processArchiveTrack(track);
             } else if (error.response && error.response?.status === 429) {

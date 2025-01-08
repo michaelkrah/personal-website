@@ -23,8 +23,8 @@ router.use(auth({
 router.get('/', async (req, res) => {
 
     const db = client.db(); 
-    const collection = db.collection('mySongs');
-    const collection2 = db.collection('listensBeta')
+    const collectionTestConnection = db.collection('mySongs');
+    const collectionListens = db.collection('listens')
 
 
     
@@ -33,8 +33,8 @@ router.get('/', async (req, res) => {
             schedulePlaybackState();
         }
 
-        const testLogins = await collection.find({}).sort({ _id: -1 }).limit(50).toArray();
-        const listens = await collection2.find({}).sort({ _id: -1 }).limit(50).toArray();
+        const testLogins = await collectionTestConnection.find({}).sort({ _id: -1 }).limit(50).toArray();
+        const listens = await collectionListens.find({}).sort({ _id: -1 }).limit(50).toArray();
 
         res.render('admin', {
             spotifyRequestPlayer: getRequestPlayer(),

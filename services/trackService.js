@@ -5,9 +5,8 @@ const { client } = require('../config/dbConfig');
 // when complete, which might take hours ?
 
 const db = client.db();
-const collection = db.collection('tracksBeta');
-const collectionTracks2 = db.collection('tracksPreBeta');
-const collectionDateTester = db.collection('tracksBetaDateTesting');
+const collectionTracks = db.collection('tracks');
+const collectionTracksUnique = db.collection('tracksUnique');
 
 
 let lastTrack = null;
@@ -52,9 +51,17 @@ async function processTrack(last) {
   if (last.listens.length < 2) {
     return false;
   }
+  if (await trackIsNew(last.data.item.uri)) {
+    collectionTracksUnique.insertOne({ data: last.data });
+  }
   console.log("Inserting new object", last.listens)
-  const result = await collection.insertOne(last);
+  const result = await collectionTracks.insertOne(last);
   return true;
+}
+
+async function trackIsNew(uri) {
+  let storedTrack = await collectionTracksUnique.find({ "data.item.uri": uri }).toArray();
+  return storedTrack.length === 0;
 }
 
 
@@ -64,7 +71,7 @@ async function getTracksFromInterval(startDate, endDate) {
   try {
     let startDateObj = new Date(startDate)
     let endDateObj = new Date(endDate)
-    const tracks = await collection.find({
+    const tracks = await collectionTracks.find({
       listenTime: {
         $gte: startDateObj.getTime(),
         $lte: endDateObj.getTime()
@@ -94,7 +101,7 @@ async function getTopFromInterval(startDate, endDate, attribute) {
 
   const attributeFields = {
     tracks: '$data.item.id',
-    artists: '$data.item.artists.id', // Accesses the first artist in the array
+    artists: '$data.item.artists.id',
     albums: '$data.item.album.id'
   };
 
@@ -132,7 +139,7 @@ async function getTopFromInterval(startDate, endDate, attribute) {
     { $limit: 5 },
     {
       $lookup: {
-        from: "tracksBeta",
+        from: "tracks",
         let: { id: '$_id' },
         pipeline: [
           {
@@ -156,7 +163,7 @@ async function getTopFromInterval(startDate, endDate, attribute) {
     },
   ];
   try {
-    return await collection.aggregate(pipeline).toArray();
+    return await collectionTracks.aggregate(pipeline).toArray();
   } catch (err) {
     console.error('Error aggregating top results:', err);
     throw err;
