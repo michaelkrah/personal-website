@@ -86,11 +86,10 @@ async function handleRedirect(req, res) {
       setAccessToken(responseData.access_token);
       setRefreshToken(responseData.refresh_token);
 
-      // Automatically activates schedulePlaybackState after login is complete  
       setRequestPlayer(true);
       // CHANGE activate requestPlaybackState job here
 
-      res.redirect('/songs'); 
+      res.redirect('/songs');
     } catch (error) {
       throw error;
     }
@@ -100,4 +99,4 @@ async function handleRedirect(req, res) {
 };
 
 
-module.exports = {refreshAccessToken, handleRedirect};
+module.exports = { refreshAccessToken, handleRedirect };

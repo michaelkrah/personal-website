@@ -18,7 +18,7 @@ const userRouter = require('./routes/users');
 const aboutRouter = require('./routes/about');
 const resumeRouter = require('./routes/resume');
 const contactRouter = require('./routes/contact');
-const songRouter = require('./routes/songs2'); //CHANGE to songs
+const songRouter = require('./routes/songs'); 
 const adminRouter = require('./routes/admin');
 
 app.use('/about', aboutRouter);
