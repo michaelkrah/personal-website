@@ -1,6 +1,6 @@
 // Access tokens are strings that give access to a user's data for a limited time (1 hour)
 // Refresh tokens are included when an access token is requested so that future requests don't need to be reauthorized
-require('dotenv').config(); 
+require('dotenv').config();
 
 let spotifyAccessToken = null;
 let spotifyRefreshToken = process.env.SPOTIFY_REFRESH_TOKEN;
@@ -77,7 +77,7 @@ function getLastListened() {
 }
 
 function setLastListened(newState) {
-  lastListenedTo =  newState
+  lastListenedTo = newState
 }
 
 
