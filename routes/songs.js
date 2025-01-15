@@ -35,5 +35,10 @@ router.post('/api/send-date-range', async (req, res) => {
     res.json(analysisFromRange)
 })
 
+router.post('/api/current-song', async (req, res) => {
+    console.log('/api/current-song called')
+    res.json(getLastListened())
+})
+
 
 module.exports = router;

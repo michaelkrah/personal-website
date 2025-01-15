@@ -14,17 +14,20 @@ function drawActivityChart(data, chartDataTime, chartOptionalData, containerId) 
     const containerWidth = container.node().getBoundingClientRect().width;
     const containerHeight = container.node().getBoundingClientRect().height;
 
+    let leftMargin = 40
+    let fontSizeLabels = '0.6em'
+    if (containerWidth < 500) {
+        fontSizeLabels = '0.35em'
+        leftMargin = 30
+    }
 
-
-    const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+    const margin = { top: 20, right: 0, bottom: 40, left: leftMargin };
     const width = containerWidth - margin.left - margin.right;
     const height = containerHeight - margin.top - margin.bottom;
 
-    let fontSizeLabels = '0.6em'
 
-    if (containerWidth < 500) {
-        fontSizeLabels = '0.35em'
-    }
+
+
 
     let dataColor = '#1db954';
     if (chartOptionalData) {

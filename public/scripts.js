@@ -292,3 +292,55 @@ function clearChart(containerId) {
         container.innerHTML = '';
     }
 }
+
+
+
+async function updateCurrentSong() {
+    try {
+
+        const response = await fetch('api/current-song', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        let data = await response.json();
+
+
+        const currentSongDiv = document.getElementById('current-song');
+
+        if (data) {
+            data = data.data.item;
+            currentSongDiv.innerHTML = `
+                <h4>Currently playing</h4>
+                <a id="songs-display" href="https://open.spotify.com/track/${data.id}" target="_blank">
+                    <img id="song-image" src="${data.album.images[0]?.url}" alt="Song Image">
+                </a>
+                <div>
+                    <a id="songs-display" href="https://open.spotify.com/track/${data.id}" target="_blank">
+                        ${data.name}
+                    </a>
+                </div>
+                <div>
+                    <a id="artists-display" href="https://open.spotify.com/artist/${data.artists[0].id}" target="_blank">
+                        ${data.artists[0]?.name}
+                    </a>
+                </div>
+            `;
+        } else {
+            currentSongDiv.innerHTML = `
+                <h4>Currently playing</h4>
+                <img id="song-image" src="../public/images/spotify-nothing-playing.png" alt="Song Image">
+                <a id="songs-display" href="https://open.spotify.com/" target="_blank">Not listening to music :(</a>
+            `;
+        }
+    } catch (error) {
+        console.error('Error fetching current song:', error);
+    }
+}
+
+setInterval(updateCurrentSong, 10000);
+updateCurrentSong();
