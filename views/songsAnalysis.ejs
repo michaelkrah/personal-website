@@ -104,23 +104,31 @@
 
                         <div id="date-range-exact-values">
                             <div>
-                                From <green-text><%= startDate %></green-text> to <green-text><%= endDate %></green-text>, <br>
+                                From <green-text>
+                                    <%= startDate %>
+                                </green-text> to <green-text>
+                                    <%= endDate %>
+                                </green-text>, <br>
                                 I listened to <green-text>
-                                    <%= uniqueSongs %> unique tracks</green-text> <br> on <green-text>
-                                    <%= uniqueAlbums %> albums</green-text>, <br>
-                                     from a total of <green-text>
-                                    <%= uniqueArtists %> artists</green-text>. <br>
+                                    <%= uniqueSongs %> unique tracks
+                                </green-text> <br> on <green-text>
+                                    <%= uniqueAlbums %> albums
+                                </green-text>, <br>
+                                from a total of <green-text>
+                                    <%= uniqueArtists %> artists
+                                </green-text>. <br>
                             </div>
                             <div>
-                                This represents <green-text><%= minutesListened %> minutes</green-text> <br> and <green-text>
-                                <%= totalTracks %> total tracks</green-text>.
+                                This represents <green-text>
+                                    <%= minutesListened %> minutes
+                                </green-text> <br> and <green-text>
+                                    <%= totalTracks %> total tracks
+                                </green-text>.
                             </div>
                         </div>
 
                         <div id="date-range-top">
-                            <div>
-                                <h4>Most listened to</h4>
-                            </div>
+
                             <div class="flex-container-ranking">
                                 <div class="ranking-div">
 
@@ -135,17 +143,17 @@
                                                         <%= index + 1 %>.&nbsp;
                                                     </div>
                                                     <div class="ranking-name"
-                                                    style="--ranking-color: <%= colorList[index] %>;">
+                                                        style="--ranking-color: <%= colorList[index] %>;">
 
-                                                    <% if (element.name[0][0].length> 30) { %>
+                                                        <% if (element.name[0][0].length> 30) { %>
 
                                                             <%= element.name[0][0].substring(0, 30)%>...
-                                                        
-                                                        <% } else { %>
-                         
-                                                                <%= element.name %>
-                                                            <% } %>
-                                                        </div>
+
+                                                                <% } else { %>
+
+                                                                    <%= element.name %>
+                                                                        <% } %>
+                                                    </div>
                                                 </div>
                                                 <% }); %>
                                         </div>
@@ -163,17 +171,17 @@
                                                         <%= index + 1 %>.&nbsp;
                                                     </div>
                                                     <div class="ranking-name"
-                                                    style="--ranking-color: <%= colorList[index] %>;">
-                                                    <div class="ranking-title">
-                                                    <% if (element.name[0][0].length> 30) { %>
+                                                        style="--ranking-color: <%= colorList[index] %>;">
+                                                        <div class="ranking-title">
+                                                            <% if (element.name[0][0].length> 30) { %>
                                                                 <%= element.name[0][0].substring(0, 30)%>...
-                                                    <% } else { %>
-                                                                <%= element.name %> 
-                                                    <% } %>
-                                                    </div>
-                                                    <div class="ranking-artist">
-                                                        <%= element.artist[0][0] %>
-                                                    </div>
+                                                                    <% } else { %>
+                                                                        <%= element.name %>
+                                                                            <% } %>
+                                                        </div>
+                                                        <div class="ranking-artist">
+                                                            <%= element.artist[0][0] %>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <% }); %>
@@ -193,17 +201,17 @@
                                                         <%= index + 1 %>.&nbsp;
                                                     </div>
                                                     <div class="ranking-name"
-                                                    style="--ranking-color: <%= colorList[index] %>;">
-                                                    <div class="ranking-title">
-                                                    <% if (element.name[0][0].length> 30) { %>
+                                                        style="--ranking-color: <%= colorList[index] %>;">
+                                                        <div class="ranking-title">
+                                                            <% if (element.name[0][0].length> 30) { %>
                                                                 <%= element.name[0][0].substring(0, 30)%>...
-                                                    <% } else { %>
-                                                                <%= element.name %> 
-                                                    <% } %>
-                                                    </div>
-                                                    <div class="ranking-artist">
-                                                        <%= element.artist[0][0] %>
-                                                    </div>
+                                                                    <% } else { %>
+                                                                        <%= element.name %>
+                                                                            <% } %>
+                                                        </div>
+                                                        <div class="ranking-artist">
+                                                            <%= element.artist[0][0] %>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <% }); %>
@@ -228,14 +236,15 @@
     </main>
 
     <script>
-        let chartDataValues = <%- JSON.stringify(chartDataValues) %>;
-        let chartDataTime = <%- JSON.stringify(chartDataTime) %>;
-        let chartTopTracks = <%- JSON.stringify(chartTopTracks) %>;
-        let chartTopArtists = <%- JSON.stringify(chartTopArtists) %>;
-        let chartTopAlbums = <%- JSON.stringify(chartTopAlbums) %>;
+        let chartDataValues = <% - JSON.stringify(chartDataValues) %>;
+        let chartDataTime = <% - JSON.stringify(chartDataTime) %>;
+        let chartTopTracks = <% - JSON.stringify(chartTopTracks) %>;
+        let chartTopArtists = <% - JSON.stringify(chartTopArtists) %>;
+        let chartTopAlbums = <% - JSON.stringify(chartTopAlbums) %>;
 
     </script>
     <script type="module" src="../public/scripts.js"></script>
 
 </body>
+
 </html>
